@@ -59,9 +59,7 @@ def test_group_by_url_multiple_mocks_same_endpoint():
 # Test grouping with a mock that raises an exception
 def test_group_by_url_with_exception():
     mock_responses = [
-        MockAPIResponse(
-            url="https://example.com/api", method="GET", exc=Exception
-        )
+        MockAPIResponse(url="https://example.com/api", method="GET", exc=Exception)
     ]
     expected = [
         MockConfiguration(
