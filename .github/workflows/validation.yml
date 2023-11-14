@@ -27,6 +27,7 @@ jobs:
         run: |
           flake8 .
 
-      - name: Run tests with tox
+      - name: Run tests with specified Python version
         run: |
-          tox
+          python${{ matrix.python-version }} -m pip install -r requirements_dev.txt
+          python${{ matrix.python-version }} -m pytest
