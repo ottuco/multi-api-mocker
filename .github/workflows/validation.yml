@@ -22,8 +22,7 @@ jobs:
       - name: Install dependencies
         run: |
           python${{ matrix.python-version }} -m pip install --upgrade pip
-          python${{ matrix.python-version }} -m pip install setuptools wheel twine tox
-          python${{ matrix.python-version }} -m pip install requirements_dev.txt
+          python${{ matrix.python-version }} -m pip install -r requirements_dev.txt
 
       - name: Check code formatting with Black
         run: |
