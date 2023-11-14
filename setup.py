@@ -31,6 +31,7 @@ setup(
         "Programming Language :: Python :: 3.10",
     ],
     description="A Python library for generating mock API responses for testing.",
+    long_description_content_type="text/markdown",
     install_requires=requirements,
     license="MIT license",
     long_description=readme + "\n\n" + history,

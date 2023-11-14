@@ -4,8 +4,9 @@
 [![PyPI version](https://img.shields.io/pypi/v/multi_api_mocker.svg)](https://pypi.python.org/pypi/multi_api_mocker)
 
 
+Multi-API Mocker is a Python utility designed to enhance and simplify the process of mocking multiple API calls in pytest tests. Developed as an extension for the [requests_mock](https://github.com/jamielennox/requests-mock)
+ package, this tool focuses on improving test readability, maintainability, and efficiency in scenarios requiring multiple API interactions. We extend special thanks to Jamie Lennox for his exceptional work on the requests_mock library, which has been fundamental in the development of this tool. Multi-API Mocker is an ideal solution for developers and testers who regularly work with complex API testing scenarios in pytest.
 
-Multi-API Mocker is a Python utility designed to enhance and simplify the process of mocking multiple API calls in pytest tests. Developed as an extension for the `requests_mock` package, this tool focuses on improving test readability, maintainability, and efficiency in scenarios requiring multiple API interactions. It's an ideal solution for developers and testers who regularly work with complex API testing scenarios in pytest.
 
 **Features**:
 
