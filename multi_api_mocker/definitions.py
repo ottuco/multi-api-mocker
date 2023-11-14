@@ -122,7 +122,9 @@ class MockAPIResponse:
             value = getattr(cls, attr, None)
             if not isinstance(value, expected_types) and value is not None:
                 expected_type_names = [
-                    t.__name__ for t in expected_types if not isinstance(None, t)
+                    t.__name__
+                    for t in expected_types
+                    if t is not type(None)  # noqa: E721
                 ]
                 if type(None) in expected_types:
                     expected_type_names.append("None")
