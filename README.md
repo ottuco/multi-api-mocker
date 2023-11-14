@@ -22,7 +22,7 @@ Multi-API Mocker is a Python utility designed to enhance and simplify the proces
 Multi-API Mocker can be easily installed using pip. Run the following command in your terminal to install:
 
 ```bash
-pip install multi_api_mocker
+pip install multi-api-mocker
 ```
 
 ### Quick Start: Simple Usage
