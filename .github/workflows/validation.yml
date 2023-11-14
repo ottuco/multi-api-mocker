@@ -1,0 +1,37 @@
+name: Validation Workflow
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10']
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python${{ matrix.python-version }} -m pip install --upgrade pip
+          python${{ matrix.python-version }} -m pip install -r requirements_dev.txt
+
+      - name: Check code formatting with Black
+        run: |
+          black --check .
+
+      - name: Lint with flake8
+        run: |
+          flake8 .
+
+      - name: Run tests with specified Python version
+        run: |
+          python${{ matrix.python-version }} -m pytest
