@@ -48,9 +48,14 @@ def setup_api_mocks(requests_mock: Mocker, request) -> MockSet:
     """
     # Convert the incoming parameter to a list of MockConfiguration instances
     api_mocks_configurations = group_by_url(request.param)
+    matchers = {}
 
     # Register each mock configuration with the requests_mock instance
     for api_mock in api_mocks_configurations:
-        requests_mock.register_uri(api_mock.method, api_mock.url, api_mock.responses)
+        matcher = requests_mock.register_uri(
+            api_mock.method, api_mock.url, api_mock.responses
+        )
+        matchers[api_mock.url] = matcher
+
     # Return the requests_mock and the list of MockConfiguration instances
-    yield MockSet(request.param, requests_mock)
+    yield MockSet(request.param, requests_mock, matchers)
