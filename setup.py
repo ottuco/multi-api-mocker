@@ -17,6 +17,8 @@ test_requirements = [
     "requests_mock>=1.9.3",
 ]
 
+version = "1.1.0"
+
 setup(
     author="Dacian Popute",
     author_email="dacian@ottu.com",

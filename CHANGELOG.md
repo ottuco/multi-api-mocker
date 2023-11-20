@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.0] - 2023-11-20
+
+### Added
+- Implementing matchers in the MockSet class to enhance the tracking and management of multiple mock responses in tests.
+
+
 ## [1.0.0] - 2023-11-08
 
 ### Added
