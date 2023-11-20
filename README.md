@@ -34,7 +34,7 @@ This guide demonstrates how to quickly set up API mocks using `MockAPIResponse` 
 First, import the required modules:
 
 ```python
-from mock_response_factory.definitions import MockAPIResponse
+from multi_api_mocker.definitions import MockAPIResponse
 import pytest
 import requests
 ```
