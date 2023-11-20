@@ -36,6 +36,15 @@ class Push(MockAPIResponse):
     }
 
 
+class SecondPush(Push):
+    default_json = {
+        "id": "push103",
+        "message": "Pushed commit102",
+        "author": "dev@example.com",
+        "timestamp": "2023-11-08T12:34:56Z",
+    }
+
+
 class ForcePush(MockAPIResponse):
     url = "https://example.com/api/force-push"
     method = "POST"

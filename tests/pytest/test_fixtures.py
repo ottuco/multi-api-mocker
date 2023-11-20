@@ -143,7 +143,7 @@ def test_exception(setup_api_mocks):
     [
         ([mocks.Fork(), mocks.Commit(), mocks.Push(partial_json={"id": "partial_id"})]),
     ],
-    indirect=["setup_api_mocks"],
+    indirect=True,
 )
 def test_partial_json(setup_api_mocks):
     mock_set = setup_api_mocks
@@ -179,3 +179,30 @@ def test_flexible_parametrization(user_email, setup_api_mocks):
 
     assert response.status_code == 200
     assert response.json() == expected_json
+
+
+@pytest.mark.parametrize(
+    "setup_api_mocks",
+    [
+        (
+            [
+                mocks.Push(),
+                mocks.SecondPush(),
+            ]
+        ),
+    ],
+    indirect=True,
+)
+def test_same_endpoint_url(setup_api_mocks):
+    mock_set = setup_api_mocks
+
+    response = requests.post("https://example.com/api/push")
+    assert response.json() == mock_set["Push"].json
+
+    response2 = requests.post("https://example.com/api/push")
+    assert response2.json() == mock_set["SecondPush"].json
+
+    matcher = mock_set.get_matcher("https://example.com/api/push")
+    assert matcher == mock_set.get_matcher(mock_set["Push"].url)
+
+    assert matcher.call_count == 2
