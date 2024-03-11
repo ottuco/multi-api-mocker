@@ -7,8 +7,8 @@ twine==4.0.2
 pytest==7.4.3
 black==23.11.0
 
-requests_mock==1.11.0
-pytest_httpx==0.30.0
+pytest_httpx==0.22.0; python_version < '3.9'
+pytest_httpx==0.30.0; python_version >= '3.9'
 
 pip>=23.3
 
