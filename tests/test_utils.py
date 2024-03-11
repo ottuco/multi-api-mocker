@@ -1,6 +1,6 @@
 from multi_api_mocker.definitions import MockAPIResponse
 from multi_api_mocker.models import MockConfiguration, ResponseKwargs
-from multi_api_mocker.utils import group_by_url
+from multi_api_mocker.http_utils import group_by_url
 
 
 # Test grouping with a single mock

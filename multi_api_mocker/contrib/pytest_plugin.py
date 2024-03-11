@@ -4,10 +4,11 @@ from typing import Union, List
 import pytest
 
 from ..definitions import MockAPIResponse
-from ..utils import group_by_url, RequestsMockSet, HTTPXMockSet
+
 
 try:
     from requests_mock import Mocker  # type: ignore # noqa: F401
+    from ..http_utils import group_by_url, RequestsMockSet  # noqa: F401
 
     requests_mock_available = True
 except ImportError:
@@ -15,6 +16,7 @@ except ImportError:
 
 try:
     from pytest_httpx import HTTPXMock  # type: ignore # noqa: F401
+    from ..httpx_utils import HTTPXMockSet  # noqa: F401
 
     httpx_available = True
 except ImportError:
