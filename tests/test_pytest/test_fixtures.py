@@ -264,7 +264,7 @@ def test_same_endpoint_url(setup_api_mocks):
     ],
     indirect=True,
 )
-def test_multiple_scenarios(setup_httpx_mocks):
+def test_multiple_scenarios_with_httpx(setup_httpx_mocks):
     mock_set = setup_httpx_mocks
 
     # Perform the API calls

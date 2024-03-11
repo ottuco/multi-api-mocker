@@ -2,8 +2,6 @@ import warnings
 from typing import Union, List
 
 import pytest
-from pytest_httpx import HTTPXMock
-from requests_mock import Mocker
 
 from ..definitions import MockAPIResponse
 from ..utils import group_by_url, RequestsMockSet, HTTPXMockSet
@@ -37,8 +35,8 @@ if requests_mock_available:
             request: The pytest request object containing parametrized test data.
 
         Returns:
-            RequestsMockSet: An instance of MockSet containing the organized MockAPIResponse
-                     objects, ready for use in tests.
+            RequestsMockSet: An instance of MockSet containing the organized
+                    MockAPIResponse objects, ready for use in tests.
 
         The fixture supports multiple test scenarios, allowing for thorough
         testing of varying API response conditions. This is especially useful
@@ -62,9 +60,10 @@ if requests_mock_available:
             )
 
 
-        This fixture converts the list of MockAPIResponse subclasses into MockConfiguration
-        instances, registers them with requests_mock, and returns a MockSet object, which
-        allows querying each mock by its endpoint name.
+        This fixture converts the list of MockAPIResponse subclasses into
+        MockConfiguration instances, registers them with requests_mock,
+        and returns a MockSet object, which allows querying each mock
+        by its endpoint name.
         """
         yield from configure_http_mocks(requests_mock, request)
 

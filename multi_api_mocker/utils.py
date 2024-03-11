@@ -84,15 +84,16 @@ def group_by_url(
     call to the same URL.
 
     Parameters:
-        api_mocks (List[Union[MockAPIResponse, List[MockAPIResponse]]]): A list of MockAPIResponse objects
-                                                                         or lists of MockAPIResponse objects
-                                                                         representing the expected responses
-                                                                         for different API calls.
+        api_mocks (List[Union[MockAPIResponse, List[MockAPIResponse]]]):
+            A list of MockAPIResponse objects or lists of MockAPIResponse objects
+            representing the expected responses
+            for different API calls.
 
     Returns:
-        List[MockConfiguration]: A list of MockConfiguration objects where each object
-                                 contains the URL, method, and a list of responses to be
-                                 used by requests-mock to simulate API interactions.
+        List[MockConfiguration]:
+            A list of MockConfiguration objects where each object
+            contains the URL, method, and a list of responses to be
+            used by requests-mock to simulate API interactions.
     """
 
     grouped_mocks = defaultdict(list)
@@ -103,7 +104,8 @@ def group_by_url(
                     add_mock_to_group(grouped_mocks, nested_mock_definition)
                 else:
                     raise ValueError(
-                        f"Unsupported mock definition type: {type(nested_mock_definition)}"
+                        f"Unsupported mock definition type: "
+                        f"{type(nested_mock_definition)}"
                     )
         elif isinstance(mock_definition, MockAPIResponse):
             add_mock_to_group(grouped_mocks, mock_definition)
