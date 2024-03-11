@@ -10,11 +10,15 @@ with open("README.md") as readme_file:
 with open("CHANGELOG.md") as history_file:
     history = history_file.read()
 
-requirements = ["requests_mock>=1.9.3"]
+# Define the base requirements
+base_requirements = []
+
+# Define the optional dependencies
+http_requirements = ["requests_mock>=1.9.3"]
+httpx_requirements = ["pytest-httpx>=0.21.0"]
 
 test_requirements = [
     "pytest>=3",
-    "requests_mock>=1.9.3",
 ]
 
 setup(
@@ -32,7 +36,12 @@ setup(
     ],
     description="A Python library for generating mock API responses for testing.",
     long_description_content_type="text/markdown",
-    install_requires=requirements,
+    install_requires=base_requirements,
+    extras_require={
+        "http": http_requirements,
+        "httpx": httpx_requirements,
+        "all": http_requirements + httpx_requirements,
+    },
     license="MIT license",
     long_description=readme + "\n\n" + history,
     include_package_data=True,

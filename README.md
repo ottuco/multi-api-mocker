@@ -17,13 +17,33 @@ Multi-API Mocker is a Python utility designed to enhance and simplify the proces
 - **Reduced Boilerplate**: Less repetitive code, focusing only on the specifics of each test case.
 - **Customizable Mocks**: Tailor your mocks to fit various testing scenarios with customizable response parameters.
 
+Multi-API Mocker is a versatile package that seamlessly integrates with both `requests_mock` and `pytest_httpx`, providing a consistent and intuitive interface for mocking API responses in your tests. Whether you're using `requests` or `httpx` for making HTTP requests, Multi-API Mocker has you covered. Switching between the two libraries is a breeze, allowing you to adapt to your project's requirements with minimal effort.
+
 **Installation**:
 
-Multi-API Mocker can be easily installed using pip. Run the following command in your terminal to install:
+Multi-API Mocker offers flexible installation options depending on your project's needs. You can choose to install support for either `requests_mock` or `pytest_httpx`, or you can install both for maximum versatility.
+
+To install Multi-API Mocker with `requests_mock` support, run the following command in your terminal:
 
 ```bash
-pip install multi-api-mocker
+pip install multi-api-mocker[http]
 ```
+
+To install Multi-API Mocker with `pytest_httpx` support, use the following command:
+
+```bash
+pip install multi-api-mocker[httpx]
+```
+
+If you want to install Multi-API Mocker with support for both `requests_mock` and `pytest_httpx`, you can use the `all` extra:
+
+```bash
+pip install multi-api-mocker[all]
+```
+
+By specifying the appropriate extra during installation, you can ensure that only the necessary dependencies are installed based on your project's requirements.
+
+Once installed, you can start using Multi-API Mocker in your tests to mock API responses effortlessly. The package provides a set of intuitive fixtures and utilities that work seamlessly with both `requests_mock` and `pytest_httpx`, allowing you to focus on writing comprehensive and maintainable tests.
 
 ### Quick Start: Simple Usage
 
@@ -45,7 +65,7 @@ Now, define your test function and use `pytest.mark.parametrize` to inject the m
 
 ```python
 @pytest.mark.parametrize(
-    "setup_api_mocks",
+    "setup_http_mocks",
     [
         (
             [
@@ -64,7 +84,7 @@ Now, define your test function and use `pytest.mark.parametrize` to inject the m
     ],
     indirect=True,
 )
-def test_commit_and_push(setup_api_mocks):
+def test_commit_and_push(setup_http_mocks):
     # Perform the commit API call
     commit_response = requests.post("https://example.com/api/commit")
     assert commit_response.json() == {
@@ -158,14 +178,14 @@ When creating an instance of `MockAPIResponse`, the following parameters can be 
 
 Subclassing and instantiating `MockAPIResponse` provides a powerful and flexible way to define and manage mock responses for API endpoints. These subclasses can be used directly or modified on-the-fly in tests, enabling developers to thoroughly test their applications against a wide range of API response scenarios. This approach keeps test code clean and focused, with mock logic encapsulated within the mock response classes.
 
-### `setup_api_mocks` Pytest Fixture
+### `setup_http_mocks` Pytest Fixture
 
 
-The `setup_api_mocks` fixture is an integral part of the multi_api_mocker utility, designed to work seamlessly with pytest and the requests_mock package. It provides a convenient way to organize and implement mock API responses in your tests. The fixture accepts a list of `MockAPIResponse` subclass instances, each representing a specific API response. This setup is ideal for tests involving multiple API calls, ensuring a clean separation between test logic and mock definitions.
+The `setup_http_mocks` fixture is an integral part of the multi_api_mocker utility, designed to work seamlessly with pytest and the requests_mock package. It provides a convenient way to organize and implement mock API responses in your tests. The fixture accepts a list of `MockAPIResponse` subclass instances, each representing a specific API response. This setup is ideal for tests involving multiple API calls, ensuring a clean separation between test logic and mock definitions.
 
 #### Purpose and Benefits
 
-Using `setup_api_mocks` streamlines the process of configuring mock responses in pytest. It enhances test readability and maintainability by:
+Using `setup_http_mocks` streamlines the process of configuring mock responses in pytest. It enhances test readability and maintainability by:
 
 - **Separating Mocks from Test Logic**: Keeps your test functions clean and focused on the actual testing logic, avoiding clutter with mock setup details.
 - **Reusable Mock Definitions**: Allows you to define mock responses in a centralized way, promoting reusability across different tests.
@@ -177,7 +197,7 @@ The fixture integrates with the `requests_mock` pytest fixture, which intercepts
 
 1. **Collects Mock Configurations**: Gathers the list of `MockAPIResponse` instances provided via pytest's parametrization.
 2. **Registers Mock Responses**: Each mock response configuration is registered with the `requests_mock` instance, ensuring the appropriate mock response is returned for each API call in the test.
-3. **Yields a `MockSet` Object**: Returns a `MockSet` instance, which contains the organized mock responses accessible by their endpoint names.
+3. **Yields a `RequestsMockSet` Object**: Returns a `RequestsMockSet` instance, which contains the organized mock responses accessible by their endpoint names.
 
 #### Example Usage
 
@@ -194,44 +214,44 @@ The fixture integrates with the `requests_mock` pytest fixture, which intercepts
 
 2. **Using the Fixture in Tests**:
 
-   Use `pytest.mark.parametrize` to pass the mock response subclasses to the test function. The `setup_api_mocks` fixture processes these and sets up the necessary mocks.
+   Use `pytest.mark.parametrize` to pass the mock response subclasses to the test function. The `setup_http_mocks` fixture processes these and sets up the necessary mocks.
 
    ```python
    @pytest.mark.parametrize(
-       "setup_api_mocks",
+       "setup_http_mocks",
        [([Fork(), Commit(), Push()])],
        indirect=True
    )
-   def test_repository_workflow(setup_api_mocks):
-       mock_set = setup_api_mocks
+   def test_repository_workflow(setup_http_mocks):
+       mock_set = setup_http_mocks
        # ... test logic using mock_set ...
    ```
 
-   In this example, the test function `test_repository_workflow` receives a `MockSet` object containing the mocks for `Fork`, `Commit`, and `Push` endpoints.
+   In this example, the test function `test_repository_workflow` receives a `RequestsMockSet` object containing the mocks for `Fork`, `Commit`, and `Push` endpoints.
 
 
-### `MockSet` Class
+### `RequestsMockSet` Class
 
 
-The `MockSet` class in the multi_api_mocker utility is a practical and efficient way to manage multiple `MockAPIResponse` objects in your pytest tests. It is designed to store and organize these mock responses, allowing you to easily access and manipulate them as needed.
+The `RequestsMockSet` class in the multi_api_mocker utility is a practical and efficient way to manage multiple `MockAPIResponse` objects in your pytest tests. It is designed to store and organize these mock responses, allowing you to easily access and manipulate them as needed.
 
 #### Constructor Parameters
 
 - **api_responses** (`List[MockAPIResponse]`): A list of `MockAPIResponse` objects, each representing a specific mock for an API endpoint.
-- **requests_mock** (`Optional[Mocker]`): The `requests_mock` fixture instance, which is automatically passed by the `setup_api_mocks` fixture. It's used for registering the mock API responses.
+- **requests_mock** (`Optional[Mocker]`): The `requests_mock` fixture instance, which is automatically passed by the `setup_http_mocks` fixture. It's used for registering the mock API responses.
 
 #### Functionality
 
-`MockSet` is particularly useful when you are dealing with a series of API calls in a test and need to reference specific mock responses repeatedly. It helps maintain clean and readable test code by centralizing the mock definitions.
+`RequestsMockSet` is particularly useful when you are dealing with a series of API calls in a test and need to reference specific mock responses repeatedly. It helps maintain clean and readable test code by centralizing the mock definitions.
 
-#### How to Use `MockSet`
+#### How to Use `RequestsMockSet`
 
-1. **Initialization**: `MockSet` is initialized with a list of `MockAPIResponse` instances. These can represent different API calls you intend to mock in your tests.
+1. **Initialization**: `RequestsMockSet` is initialized with a list of `MockAPIResponse` instances. These can represent different API calls you intend to mock in your tests.
 
    ```python
-   mock_set = MockSet([Fork(), Commit(), Push(), ForcePush()])
+   mock_set = RequestsMockSet([Fork(), Commit(), Push(), ForcePush()])
    print(mock_set)
-    # Output: <MockSet with endpoints: Fork, Commit, Push, ForcePush>
+    # Output: <RequestsMockSet with endpoints: Fork, Commit, Push, ForcePush>
    ```
 
 2. **Accessing Specific Mocks**: To access a specific mock response, use the endpoint name as the key:
@@ -241,14 +261,14 @@ The `MockSet` class in the multi_api_mocker utility is a practical and efficient
    # Output: Fork(url=https://example.com/api/fork, method=POST, status_code=200)
    ```
 
-3. **Iterating Over Mocks**: You can iterate over all the mocks in the `MockSet`:
+3. **Iterating Over Mocks**: You can iterate over all the mocks in the `RequestsMockSet`:
 
    ```python
    for mock in mock_set:
        # Perform checks or operations on each mock response
    ```
 
-4. **Converting to a List**: To get a list of all mock responses in the `MockSet`, simply use `list(mock_set)`:
+4. **Converting to a List**: To get a list of all mock responses in the `RequestsMockSet`, simply use `list(mock_set)`:
 
    ```python
    all_mocks = list(mock_set)
@@ -262,7 +282,7 @@ This approach utilizes multiple parametrized tests to handle different sequences
 
 ```python
 @pytest.mark.parametrize(
-    "setup_api_mocks",
+    "setup_http_mocks",
     [
         # Scenario 1: Push fails with a 400 error
         (
@@ -283,8 +303,8 @@ This approach utilizes multiple parametrized tests to handle different sequences
     ],
     indirect=True,
 )
-def test_multiple_scenarios(setup_api_mocks):
-    mock_set = setup_api_mocks
+def test_multiple_scenarios(setup_http_mocks):
+    mock_set = setup_http_mocks
     # ... Perform API calls and assert responses for each mock ...
 ```
 
@@ -296,12 +316,12 @@ This scenario shows how to simulate exceptions in API responses. The test is set
 
 ```python
 @pytest.mark.parametrize(
-    "setup_api_mocks",
+    "setup_http_mocks",
     [([mocks.Fork(), mocks.Commit(), mocks.Push(exc=RequestException)])],
     indirect=True
 )
-def test_api_exception_handling(setup_api_mocks):
-    mock_set = setup_api_mocks
+def test_api_exception_handling(setup_http_mocks):
+    mock_set = setup_http_mocks
     # Handling and asserting the exception
     ...
 ```
@@ -311,12 +331,12 @@ Here, the focus is on testing API calls where only a part of the JSON response n
 
 ```python
 @pytest.mark.parametrize(
-    "setup_api_mocks",
+    "setup_http_mocks",
     [([mocks.Fork(), mocks.Commit(), mocks.Push(partial_json={"id": "partial_id"})])],
     indirect=True
 )
-def test_api_with_partial_json(setup_api_mocks):
-    mock_set = setup_api_mocks
+def test_api_with_partial_json(setup_http_mocks):
+    mock_set = setup_http_mocks
 
     response = requests.post("https://example.com/api/push")
     expected_json = mock_set["Push"].json
@@ -328,12 +348,12 @@ def test_api_with_partial_json(setup_api_mocks):
 
 ### Flexible Parametrization with Indirect Fixture Usage
 
-In this setup, the focus is on demonstrating the flexibility provided by using `indirect=["setup_api_mocks"]` in parametrized tests. This method allows for the inclusion of multiple, varied parameters into the test function. The `user_email` in the given example is just one instance of how diverse parameters can be effectively integrated into tests.
-Parametrized tests can be enhanced by combining them with the `setup_api_mocks` fixture using `indirect=["setup_api_mocks"]`. This approach allows for the introduction of additional parameters (`user_email` in this case) that can be varied across different test cases.
+In this setup, the focus is on demonstrating the flexibility provided by using `indirect=["setup_http_mocks"]` in parametrized tests. This method allows for the inclusion of multiple, varied parameters into the test function. The `user_email` in the given example is just one instance of how diverse parameters can be effectively integrated into tests.
+Parametrized tests can be enhanced by combining them with the `setup_http_mocks` fixture using `indirect=["setup_http_mocks"]`. This approach allows for the introduction of additional parameters (`user_email` in this case) that can be varied across different test cases.
 
 ```python
 @pytest.mark.parametrize(
-    "user_email, setup_api_mocks",
+    "user_email, setup_http_mocks",
     [
         # Example configuration with additional parameter 'user_email'
         ("example@email.com", [mocks.Fork(), mocks.Commit(), mocks.Push()]),
@@ -347,11 +367,51 @@ Parametrized tests can be enhanced by combining them with the `setup_api_mocks` 
             ],
         ),
     ],
-    indirect=["setup_api_mocks"],
+    indirect=["setup_http_mocks"],
 )
-def test_flexible_parametrization(user_email, setup_api_mocks):
-    mock_set = setup_api_mocks
+def test_flexible_parametrization(user_email, setup_http_mocks):
+    mock_set = setup_http_mocks
     # Perform API calls and assertions here
 ```
 
 This structure is highly adaptable and can be utilized for a wide range of scenarios where test configurations need to change dynamically based on different input parameters. The `user_email` parameter is just an illustrative example; the same technique can apply to any number of parameters, such as user roles, request data, or environmental configurations, providing a robust framework for comprehensive and varied testing scenarios.
+
+
+### Note on using Multi-API Mocker with `pytest_httpx`
+
+When using Multi-API Mocker with `pytest_httpx`, you can use the created definitions interchangeably without any changes to your test code. However, it's important to note that `pytest_httpx` works differently compared to `requests_mock` in terms of when the requests are created.
+
+With `pytest_httpx`, the requests are not created until they are actually executed during the test. To accommodate this behavior, Multi-API Mocker introduces a new `HTTPXMockSet` collection specifically designed for `pytest_httpx`.
+
+The `HTTPXMockSet` collection provides methods and utilities tailored to work with `pytest_httpx`'s deferred request creation. It allows you to retrieve the actual `httpx` requests after they have been executed, enabling you to perform assertions on the request properties.
+
+When using Multi-API Mocker with `pytest_httpx`, you can access the `HTTPXMockSet` collection through the `setup_httpx_mocks` fixture, which is the equivalent of the `setup_http_mocks` fixture used with `requests_mock`.
+
+Keep this difference in mind when working with `pytest_httpx`, and refer to the Multi-API Mocker documentation for specific examples and guidance on using the `HTTPXMockSet` collection effectively in your tests.
+
+
+### Deprecation Warnings
+
+With the introduction of `httpx` support in Multi-API Mocker, the naming convention for the fixtures has been updated to provide clarity and consistency. The `setup_api_mocks` fixture, which was previously used for mocking API responses with `requests_mock`, has been renamed to `setup_http_mocks`.
+
+However, to ensure backward compatibility and minimize disruption to existing projects, the `setup_api_mocks` fixture is still available and fully functional. When you use `setup_api_mocks` in your tests, it internally points to the `setup_http_mocks` fixture, so your existing code should continue to work without any modifications.
+
+It's important to note that the `setup_api_mocks` fixture is now considered deprecated and will be removed in a future release of Multi-API Mocker. We strongly recommend updating your tests to use the new `setup_http_mocks` fixture to ensure future compatibility and to avoid any potential confusion.
+
+Upgrading to the new fixture is straightforward and only requires renaming the fixture in your test code. Instead of using `setup_api_mocks`, simply replace it with `setup_http_mocks`:
+
+```python
+# Old usage (deprecated)
+def test_example(setup_api_mocks):
+    # Test code using setup_api_mocks
+
+# New usage (recommended)
+def test_example(setup_http_mocks):
+    # Test code using setup_http_mocks
+```
+
+By making this simple change, you'll be aligned with the latest naming convention and ensure that your tests are future-proof.
+
+We recommend gradually updating your tests to use `setup_http_mocks` instead of `setup_api_mocks` to avoid using the deprecated fixture in the long run. This will help keep your test suite up to date and make it easier to maintain.
+
+If you have any questions or need assistance with the upgrade process, please refer to the Multi-API Mocker documentation or reach out to our support channels for guidance.

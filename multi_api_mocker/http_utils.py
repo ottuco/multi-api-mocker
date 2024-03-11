@@ -1,14 +1,15 @@
 from collections import defaultdict
-from typing import List, Dict
+from typing import Dict
+from typing import List, Union
 
-
-from multi_api_mocker.definitions import MockAPIResponse
-from .models import MockConfiguration, ResponseKwargs
 from requests_mock import Mocker
 from requests_mock.adapter import _Matcher
 
+from multi_api_mocker.definitions import MockAPIResponse
+from .models import MockConfiguration, ResponseKwargs
 
-class MockSet:
+
+class RequestsMockSet:
     """
     A collection class that manages MockAPIResponse objects and integrates with the
     requests_mock fixture. This class provides efficient access and iteration over
@@ -70,7 +71,9 @@ class MockSet:
         return self.matchers.get(endpoint_name)
 
 
-def group_by_url(api_mocks: List[MockAPIResponse]) -> List[MockConfiguration]:
+def group_by_url(
+    api_mocks: List[Union[MockAPIResponse, List[MockAPIResponse]]]
+) -> List[MockConfiguration]:
     """
     Organizes a list of MockAPIResponse objects by their URL and method, grouping
     them into lists of responses for each endpoint. This grouping is necessary for
@@ -79,34 +82,50 @@ def group_by_url(api_mocks: List[MockAPIResponse]) -> List[MockConfiguration]:
     call to the same URL.
 
     Parameters:
-        api_mocks (List[MockConfiguration]): A list of MockAPIResponse objects
-                                            representing the expected responses
-                                            for different API calls.
+        api_mocks (List[Union[MockAPIResponse, List[MockAPIResponse]]]):
+            A list of MockAPIResponse objects or lists of MockAPIResponse objects
+            representing the expected responses
+            for different API calls.
 
     Returns:
-        List[MockConfiguration]: A list of MockConfiguration objects where each object
-                                 contains the URL, method, and a list of responses to be
-                                 used by requests-mock to simulate API interactions.
+        List[MockConfiguration]:
+            A list of MockConfiguration objects where each object
+            contains the URL, method, and a list of responses to be
+            used by requests-mock to simulate API interactions.
     """
 
     grouped_mocks = defaultdict(list)
-    for mock in api_mocks:
-        # Create an instance of ResponseKwargs
-        response_kwargs = ResponseKwargs(
-            text=mock.text if not mock.exc else None,
-            status_code=mock.status_code if not mock.exc else None,
-            json=mock.json if not mock.exc else None,
-            exc=mock.exc if mock.exc else None,
-        )
-
-        # Add the ResponseKwargs instance, not the dict
-        grouped_mocks[(mock.url, mock.method)].append(response_kwargs)
+    for mock_definition in api_mocks:
+        if isinstance(mock_definition, list):
+            for nested_mock_definition in mock_definition:
+                if isinstance(nested_mock_definition, MockAPIResponse):
+                    add_mock_to_group(grouped_mocks, nested_mock_definition)
+                else:
+                    raise ValueError(
+                        f"Unsupported mock definition type: "
+                        f"{type(nested_mock_definition)}"
+                    )
+        elif isinstance(mock_definition, MockAPIResponse):
+            add_mock_to_group(grouped_mocks, mock_definition)
+        else:
+            raise ValueError(
+                f"Unsupported mock definition type: {type(mock_definition)}"
+            )
 
     output = []
     for (url, method), kwargs_list in grouped_mocks.items():
-        # Convert each ResponseKwargs instance to a dict
         responses = [kwargs.to_dict() for kwargs in kwargs_list]
         config = MockConfiguration(url=url, method=method.upper(), responses=responses)
         output.append(config)
 
     return output
+
+
+def add_mock_to_group(grouped_mocks, mock):
+    response_kwargs = ResponseKwargs(
+        text=mock.text if not mock.exc else None,
+        status_code=mock.status_code if not mock.exc else None,
+        json=mock.json if not mock.exc else None,
+        exc=mock.exc if mock.exc else None,
+    )
+    grouped_mocks[(mock.url, mock.method)].append(response_kwargs)
