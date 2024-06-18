@@ -1,3 +1,6 @@
+import httpx
+import requests
+
 from multi_api_mocker.definitions import MockAPIResponse
 
 
@@ -34,6 +37,21 @@ class Push(MockAPIResponse):
         "author": "dev@example.com",
         "timestamp": "2023-11-08T12:34:56Z",
     }
+
+
+class PushTimeoutRequestsError(MockAPIResponse):
+    url = "https://example.com/api/push"
+    method = "POST"
+    default_exc = requests.exceptions.Timeout
+
+
+class PushTimeoutHTTPXError(MockAPIResponse):
+    url = "https://example.com/api/push"
+    method = "POST"
+    default_exc = httpx.TimeoutException(
+        message="Timeout error",
+        request=httpx.Request("POST", "https://example.com/api/push"),
+    )
 
 
 class SecondPush(Push):

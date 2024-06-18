@@ -1,6 +1,6 @@
 import inspect
 import re
-from typing import Union, Optional
+from typing import Union, Optional, Type
 
 
 class MockAPIResponse:
@@ -46,7 +46,7 @@ class MockAPIResponse:
     default_status_code: Optional[int] = None
     default_json: Optional[dict] = None
     default_text: Optional[dict] = None
-    default_exc: Optional[Exception] = None
+    default_exc: Optional[Union[Exception, Type[Exception]]] = None
 
     def __init__(
         self,
@@ -115,7 +115,6 @@ class MockAPIResponse:
             "default_status_code": (int, type(None)),
             "default_json": (dict, type(None)),
             "default_text": (str, type(None)),
-            # For default_exc, we just check if it's None or a subclass of Exception
         }
 
         for attr, expected_types in expected_class_attribute_types.items():
@@ -140,11 +139,13 @@ class MockAPIResponse:
         # Separate validation for default_exc because it has different rules
         value = getattr(cls, "default_exc", None)
         if value is not None and not (
-            inspect.isclass(value) and issubclass(value, Exception)
+            inspect.isclass(value)
+            and issubclass(value, Exception)
+            or isinstance(value, Exception)
         ):
             raise TypeError(
                 f"The `default_exc` attribute in subclass `{cls.__name__}` "
-                f"must be a subclass of Exception or None, "
+                f"must be a subclass or instance of Exception or None, "
                 f"got `{type(value).__name__}`: `{value}`."
             )
 
