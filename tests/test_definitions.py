@@ -163,8 +163,9 @@ class TestMockAPIResponse:
             (
                 "default_exc",
                 "NotATypeOrNone",
-                "The `default_exc` attribute in subclass `MockAPIResponseSubclass` must be a subclass or instance "
-                "of Exception or None, got `str`: `NotATypeOrNone`.",
+                "The `default_exc` attribute in subclass `MockAPIResponseSubclass` "
+                "must be a subclass or instance of Exception or None, got `str`: "
+                "`NotATypeOrNone`.",
             ),
         ],
         ids=[
