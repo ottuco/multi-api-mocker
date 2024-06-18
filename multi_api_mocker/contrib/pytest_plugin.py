@@ -130,15 +130,20 @@ if httpx_available:
         yield HTTPXMockSet(mock_definitions, httpx_mock)
 
     def add_response(httpx_mock: HTTPXMock, mock_definition: MockAPIResponse):
-        if isinstance(mock_definition, MockAPIResponse):
+        if not isinstance(mock_definition, MockAPIResponse):
+            raise ValueError(
+                f"Unsupported mock definition type: {type(mock_definition)}"
+            )
+        if mock_definition.exc:
+            httpx_mock.add_exception(
+                url=mock_definition.url,
+                method=mock_definition.method,
+                exception=mock_definition.exc,
+            )
+        else:
             httpx_mock.add_response(
                 url=mock_definition.url,
                 method=mock_definition.method,
                 json=mock_definition.json,
                 status_code=mock_definition.status_code,
-                # Add more parameters as needed, e.g., headers, cookies, etc.
-            )
-        else:
-            raise ValueError(
-                f"Unsupported mock definition type: {type(mock_definition)}"
             )

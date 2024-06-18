@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.2.1] - 2024-05-22
+
+### Added
+- Support for handling exceptions in the mock API responses for `httpx`.
+
+### Changed
+- Supporting both class and instance types for `default_exc` in `MockAPIResponse`.
+
+## [1.2.0] - 2024-03-11
+
+### Added
+- Added support for `httpx`.
+- Deprecated `setup_api_mocks` fixture in favor of the new `setup_http_mocks`.
+
 ## [1.1.0] - 2023-11-20
 
 ### Added

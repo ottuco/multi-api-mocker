@@ -147,13 +147,22 @@ def test_multiple_scenarios(setup_api_mocks):
 @pytest.mark.parametrize(
     "setup_api_mocks",
     [
+        # Scenario 1: Push fails with a 400 error
         (
             [
                 mocks.Fork(),
                 mocks.Commit(),
                 mocks.Push(exc=RequestException),
             ]
-        )
+        ),
+        # Scenario 2: Force fails with 400 using `default_exc`
+        (
+            [
+                mocks.Fork(),
+                mocks.Commit(),
+                mocks.PushTimeoutRequestsError(),
+            ]
+        ),
     ],
     indirect=True,
 )
@@ -240,6 +249,50 @@ def test_same_endpoint_url(setup_api_mocks):
     assert matcher == mock_set.get_matcher(mock_set["Push"].url)
 
     assert matcher.call_count == 2
+
+
+@pytest.mark.parametrize(
+    "setup_httpx_mocks",
+    [
+        # Scenario 1: Push fails with a 400 error
+        (
+            [
+                mocks.Fork(),
+                mocks.Commit(),
+                mocks.Push(
+                    exc=httpx.RequestError(
+                        "Request error",
+                        request=httpx.Request("POST", "https://example.com/api/push"),
+                    )
+                ),
+            ]
+        ),
+        # Scenario 2: Force fails with 400 using `default_exc`
+        (
+            [
+                mocks.Fork(),
+                mocks.Commit(),
+                mocks.PushTimeoutHTTPXError(),
+            ]
+        ),
+    ],
+    indirect=True,
+)
+def test_exception_httpx(setup_httpx_mocks):
+    mock_set = setup_httpx_mocks
+
+    # Perform the API calls
+    with httpx.Client() as client:
+        response = client.post("https://example.com/api/fork")
+
+        # Assert the response matches what was defined in the Fork mock
+        assert response.json() == mock_set["Fork"].json
+
+        response = client.get("https://example.com/api/commit")
+        assert response.json() == mock_set["Commit"].json
+
+        with pytest.raises(httpx.RequestError):
+            client.post("https://example.com/api/push")
 
 
 @pytest.mark.parametrize(

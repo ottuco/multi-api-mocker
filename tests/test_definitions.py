@@ -1,5 +1,6 @@
 import re
 
+import httpx
 import pytest
 
 from multi_api_mocker.definitions import MockAPIResponse
@@ -52,6 +53,28 @@ class TestMockAPIResponse:
         assert mock.json == {"foo": "bar"}
         assert mock.text == "Hello, world!"
         assert mock.exc is Exception
+
+    def test_subclassing_with_exception_instance(self):
+        class MockAPIResponseSubclass(MockAPIResponse):
+            url = "https://example.com"
+            method = "GET"
+            endpoint_name = "MockAPIResponseSubclass"
+            default_status_code = 200
+            default_json = {"foo": "bar"}
+            default_text = "Hello, world!"
+            default_exc = httpx.TimeoutException(
+                message="Timeout error",
+                request=httpx.Request("POST", "https://example.com/api/push"),
+            )
+
+        mock = MockAPIResponseSubclass()
+        assert mock.url == "https://example.com"
+        assert mock.method == "GET"
+        assert mock.endpoint_name == "MockAPIResponseSubclass"
+        assert mock.status_code == 200
+        assert mock.json == {"foo": "bar"}
+        assert mock.text == "Hello, world!"
+        assert isinstance(mock.exc, httpx.TimeoutException)
 
     def test_subclassing_with_url_as_regex_pattern(self):
         class MockAPIResponseSubclass(MockAPIResponse):
@@ -141,8 +164,17 @@ class TestMockAPIResponse:
                 "default_exc",
                 "NotATypeOrNone",
                 "The `default_exc` attribute in subclass `MockAPIResponseSubclass` "
-                "must be a subclass of Exception or None, got `str`: `NotATypeOrNone`.",
+                "must be a subclass or instance of Exception or None, got `str`: "
+                "`NotATypeOrNone`.",
             ),
+        ],
+        ids=[
+            "method",
+            "endpoint_name",
+            "default_status_code",
+            "default_json",
+            "default_text",
+            "default_exc",
         ],
     )
     def test_invalid_class_attribute_definition(
