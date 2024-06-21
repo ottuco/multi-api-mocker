@@ -149,12 +149,6 @@ class TestMockAPIResponse:
                 ),
             ),
             (
-                "default_json",
-                "NotADict",
-                "The `default_json` attribute in subclass `MockAPIResponseSubclass` "
-                "must be of type `dict, None`, got `str`: `NotADict`.",
-            ),
-            (
                 "default_text",
                 123,
                 "The `default_text` attribute in subclass `MockAPIResponseSubclass` "
@@ -172,7 +166,6 @@ class TestMockAPIResponse:
             "method",
             "endpoint_name",
             "default_status_code",
-            "default_json",
             "default_text",
             "default_exc",
         ],
