@@ -1,6 +1,6 @@
 import inspect
 import re
-from typing import Union, Optional, Type
+from typing import Union, Optional, Type, Any
 
 
 class MockAPIResponse:
@@ -15,9 +15,9 @@ class MockAPIResponse:
         method (str): Default HTTP method for the endpoint.
         endpoint_name (str): Default identifier for the endpoint.
         default_status_code (int): Default HTTP status code for the response.
-        default_json (dict): Default JSON response data.
+        default_json (Any): Default JSON response data.
         default_text (str): Default text response data.
-        default_exc (Exception): Default exception to be raised.
+        default_exc (Union[Exception, Type[Exception], None]): Default exception to be raised.
 
 
     Parameters:
@@ -27,14 +27,14 @@ class MockAPIResponse:
                                  `method` attribute.
         status_code (int, optional): The HTTP status code of the response. Defaults to
                                      the class-level `status_code` attribute.
-        json (dict, optional): The JSON data of the response. Defaults to the
+        json (Any, optional): The JSON data of the response. Defaults to the
                                class-level `json` attribute or the
                                default JSON data based on the status_code.
         partial_json (dict, optional): Partial dict to update the default_json.
         text (str, optional): The text data of the response. Defaults to the class-level
                               `text` attribute or the default text data based on the
                               status_code.
-        exc (Exception, optional): The exception to raise when the request is made.
+        exc (Union[Exception, Type[Exception], None], optional): The exception to raise when the request is made.
                                    Defaults to None.
         **kwargs: Additional keyword arguments for extended configurations or subclass
                   customizations.
@@ -44,9 +44,9 @@ class MockAPIResponse:
     method: str = None
     endpoint_name: str = None
     default_status_code: Optional[int] = None
-    default_json: Optional[dict] = None
-    default_text: Optional[dict] = None
-    default_exc: Optional[Union[Exception, Type[Exception]]] = None
+    default_json: Optional[Any] = None
+    default_text: Optional[str] = None
+    default_exc: Optional[Union[Exception, Type[Exception], None]] = None
 
     def __init__(
         self,
@@ -70,7 +70,7 @@ class MockAPIResponse:
                                     `method` attribute.
             status_code (int, optional): The HTTP status code of the response.
                                          Defaults to the class-level `status_code`.
-            json (dict, optional): The JSON data of the response. Defaults to the
+            json (Any, optional): The JSON data of the response. Defaults to the
                                    class-level `json` or default JSON based on
                                    status_code.
             partial_json (dict, optional): Partial dict to update the default_json.
@@ -79,7 +79,7 @@ class MockAPIResponse:
                                   status_code.
             endpoint_name (str, optional): The name for the API endpoint. Defaults to
                                            the class name.
-            exc (Exception, optional): Exception to raise for the request. Defaults
+            exc (Union[Exception, Type[Exception], None], optional): Exception to raise for the request. Defaults
                                        to None.
             **kwargs: Additional keyword arguments for customizing the response.
         """
@@ -113,7 +113,6 @@ class MockAPIResponse:
             "method": (str,),
             "endpoint_name": (str,),
             "default_status_code": (int, type(None)),
-            "default_json": (dict, type(None)),
             "default_text": (str, type(None)),
         }
 
