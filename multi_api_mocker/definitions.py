@@ -17,7 +17,8 @@ class MockAPIResponse:
         default_status_code (int): Default HTTP status code for the response.
         default_json (Any): Default JSON response data.
         default_text (str): Default text response data.
-        default_exc (Union[Exception, Type[Exception], None]): Default exception to be raised.
+        default_exc (Union[Exception, Type[Exception], None]): Default exception to be
+        raised.
 
 
     Parameters:
@@ -34,8 +35,8 @@ class MockAPIResponse:
         text (str, optional): The text data of the response. Defaults to the class-level
                               `text` attribute or the default text data based on the
                               status_code.
-        exc (Union[Exception, Type[Exception], None], optional): The exception to raise when the request is made.
-                                   Defaults to None.
+        exc (Union[Exception, Type[Exception], None], optional): The exception to raise
+        when the request is made. Defaults to None.
         **kwargs: Additional keyword arguments for extended configurations or subclass
                   customizations.
     """
@@ -79,8 +80,8 @@ class MockAPIResponse:
                                   status_code.
             endpoint_name (str, optional): The name for the API endpoint. Defaults to
                                            the class name.
-            exc (Union[Exception, Type[Exception], None], optional): Exception to raise for the request. Defaults
-                                       to None.
+            exc (Union[Exception, Type[Exception], None], optional): Exception to raise
+                for the request. Defaults to None.
             **kwargs: Additional keyword arguments for customizing the response.
         """
 
