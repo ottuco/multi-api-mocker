@@ -2,6 +2,11 @@
 
 ## [1.2.1] - 2024-05-22
 
+### Changed
+- Fix support for default json response in `MockAPIResponse`.
+
+## [1.2.1] - 2024-05-22
+
 ### Added
 - Support for handling exceptions in the mock API responses for `httpx`.
 
