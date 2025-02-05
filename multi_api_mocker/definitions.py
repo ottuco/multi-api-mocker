@@ -130,9 +130,9 @@ class MockAPIResponse:
 
                 type_name = type(value).__name__
                 message = (
-                    f"The `{attr}` attribute in subclass `{cls.__name__}` "
-                    f"must be of type `{', '.join(expected_type_names)}`, "
-                    f"got `{type_name}`: `{value}`."
+                    f"The {attr!r} attribute in subclass {cls.__name__!r} "
+                    f"must be of type {', '.join(expected_type_names)!r}, "
+                    f"got {type_name!r}: {value!r}."
                 )
                 raise TypeError(message)
 
@@ -144,9 +144,9 @@ class MockAPIResponse:
             or isinstance(value, Exception)
         ):
             raise TypeError(
-                f"The `default_exc` attribute in subclass `{cls.__name__}` "
+                f"The 'default_exc' attribute in subclass {cls.__name__!r} "
                 f"must be a subclass or instance of Exception or None, "
-                f"got `{type(value).__name__}`: `{value}`."
+                f"got {type(value).__name__!r}: {value!r}."
             )
 
     @property

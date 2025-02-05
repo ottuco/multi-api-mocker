@@ -119,8 +119,8 @@ class TestMockAPIResponse:
 
         assert (
             str(exc_info.value)
-            == "The `url` attribute in subclass `MockAPIResponseSubclass` "
-            "must be of type `str, Pattern`, got `int`: `1`."
+            == "The 'url' attribute in subclass 'MockAPIResponseSubclass' "
+            "must be of type 'str, Pattern', got 'int': 1."
         )
 
     @pytest.mark.parametrize(
@@ -129,37 +129,37 @@ class TestMockAPIResponse:
             (
                 "method",
                 200,
-                "The `method` attribute in subclass `MockAPIResponseSubclass` "
-                "must be of type `str`, got `int`: `200`.",
+                "The 'method' attribute in subclass 'MockAPIResponseSubclass' "
+                "must be of type 'str', got 'int': 200.",
             ),
             (
                 "endpoint_name",
                 False,
                 (
-                    "The `endpoint_name` attribute in subclass "
-                    "`MockAPIResponseSubclass` must be of type `str`, got `bool`: `False`."  # noqa: E501
+                    "The 'endpoint_name' attribute in subclass "
+                    "'MockAPIResponseSubclass' must be of type 'str', got 'bool': False."  # noqa: E501
                 ),
             ),
             (
                 "default_status_code",
                 "NotAnInt",
                 (
-                    "The `default_status_code` attribute in subclass `MockAPIResponseSubclass` "  # noqa: E501
-                    "must be of type `int, None`, got `str`: `NotAnInt`."
+                    "The 'default_status_code' attribute in subclass 'MockAPIResponseSubclass' "  # noqa: E501
+                    "must be of type 'int, None', got 'str': 'NotAnInt'."
                 ),
             ),
             (
                 "default_text",
                 123,
-                "The `default_text` attribute in subclass `MockAPIResponseSubclass` "
-                "must be of type `str, None`, got `int`: `123`.",
+                "The 'default_text' attribute in subclass 'MockAPIResponseSubclass' "
+                "must be of type 'str, None', got 'int': 123.",
             ),
             (
                 "default_exc",
                 "NotATypeOrNone",
-                "The `default_exc` attribute in subclass `MockAPIResponseSubclass` "
-                "must be a subclass or instance of Exception or None, got `str`: "
-                "`NotATypeOrNone`.",
+                "The 'default_exc' attribute in subclass 'MockAPIResponseSubclass' "
+                "must be a subclass or instance of Exception or None, got 'str': "
+                "'NotATypeOrNone'.",
             ),
         ],
         ids=[
