@@ -1,6 +1,6 @@
 import inspect
 import re
-from typing import Union, Optional, Type, Any
+from typing import Any
 
 
 class MockAPIResponse:
@@ -41,13 +41,13 @@ class MockAPIResponse:
                   customizations.
     """
 
-    url: Union[str, re.Pattern] = None
+    url: str | re.Pattern = None
     method: str = None
     endpoint_name: str = None
-    default_status_code: Optional[int] = None
-    default_json: Optional[Any] = None
-    default_text: Optional[str] = None
-    default_exc: Optional[Union[Exception, Type[Exception], None]] = None
+    default_status_code: int | None = None
+    default_json: Any | None = None
+    default_text: str | None = None
+    default_exc: Exception | type[Exception] | None = None
 
     def __init__(
         self,
@@ -130,9 +130,9 @@ class MockAPIResponse:
 
                 type_name = type(value).__name__
                 message = (
-                    f"The `{attr}` attribute in subclass `{cls.__name__}` "
-                    f"must be of type `{', '.join(expected_type_names)}`, "
-                    f"got `{type_name}`: `{value}`."
+                    f"The {attr!r} attribute in subclass {cls.__name__!r} "
+                    f"must be of type {', '.join(expected_type_names)!r}, "
+                    f"got {type_name!r}: {value!r}."
                 )
                 raise TypeError(message)
 
@@ -144,9 +144,9 @@ class MockAPIResponse:
             or isinstance(value, Exception)
         ):
             raise TypeError(
-                f"The `default_exc` attribute in subclass `{cls.__name__}` "
+                f"The 'default_exc' attribute in subclass {cls.__name__!r} "
                 f"must be a subclass or instance of Exception or None, "
-                f"got `{type(value).__name__}`: `{value}`."
+                f"got {type(value).__name__!r}: {value!r}."
             )
 
     @property
@@ -174,7 +174,7 @@ class MockAPIResponse:
         return self._exc or self.__class__.default_exc
 
     def _default_json(self, status_code):
-        return self.default_json
+        return self.default_json.copy() if self.default_json else None
 
     def _default_text(self, status_code):
         return self.default_text

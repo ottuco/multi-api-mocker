@@ -1,5 +1,15 @@
 # Changelog
 
+
+## [1.3.0] - 2024-02-05
+
+### Changed
+- Dropped support for Python 3.8 and 3.9
+- Added support for Python 3.12
+
+### Fixed
+- Fixed issue where `partial_json` modifications were mutating the class-level `default_json` attribute in `MockAPIResponse`, causing unexpected behavior in tests.
+
 ## [1.2.1] - 2024-05-22
 
 ### Changed
