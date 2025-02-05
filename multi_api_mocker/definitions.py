@@ -1,6 +1,6 @@
 import inspect
 import re
-from typing import Union, Optional, Type, Any
+from typing import Optional, Any
 
 
 class MockAPIResponse:
@@ -44,7 +44,7 @@ class MockAPIResponse:
     url: str | re.Pattern = None
     method: str = None
     endpoint_name: str = None
-    default_status_code: Optional[int] = None
+    default_status_code: int | None = None
     default_json: Any | None = None
     default_text: str | None = None
     default_exc: Exception | type[Exception] | None = None
