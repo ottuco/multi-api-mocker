@@ -41,13 +41,13 @@ class MockAPIResponse:
                   customizations.
     """
 
-    url: Union[str, re.Pattern] = None
+    url: str | re.Pattern = None
     method: str = None
     endpoint_name: str = None
     default_status_code: Optional[int] = None
-    default_json: Optional[Any] = None
-    default_text: Optional[str] = None
-    default_exc: Optional[Union[Exception, Type[Exception], None]] = None
+    default_json: Any | None = None
+    default_text: str | None = None
+    default_exc: Exception | type[Exception] | None = None
 
     def __init__(
         self,
@@ -174,7 +174,7 @@ class MockAPIResponse:
         return self._exc or self.__class__.default_exc
 
     def _default_json(self, status_code):
-        return self.default_json
+        return self.default_json.copy() if self.default_json else None
 
     def _default_text(self, status_code):
         return self.default_text
