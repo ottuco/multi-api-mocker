@@ -1,5 +1,5 @@
 import pytest
-from aiohttp import ClientSession
+from aiohttp import ClientSession, client_exceptions
 from multi_api_mocker.definitions import MockAPIResponse
 
 
@@ -23,3 +23,23 @@ async def test_aiohttp_mocking(setup_aiohttp_mocks):
         async with session.get("https://example.com/api/test") as response:
             assert response.status == 200
             assert await response.json() == {"message": "Success"}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "setup_aiohttp_mocks",
+    [
+        [
+            MockAPIResponse(
+                url="https://example.com/api/error",
+                method="GET",
+                exc=client_exceptions.ClientConnectorError(None, None),
+            )
+        ]
+    ],
+    indirect=True,
+)
+async def test_aiohttp_exception_mocking(setup_aiohttp_mocks):
+    async with ClientSession() as session:
+        with pytest.raises(client_exceptions.ClientConnectorError):
+            await session.get("https://example.com/api/error")
