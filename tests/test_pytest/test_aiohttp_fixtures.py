@@ -33,7 +33,7 @@ async def test_aiohttp_mocking(setup_aiohttp_mocks):
             MockAPIResponse(
                 url="https://example.com/api/error",
                 method="GET",
-                exc=client_exceptions.ClientConnectorError(None, None),
+                exc=OSError("Connection refused"),
             )
         ]
     ],
