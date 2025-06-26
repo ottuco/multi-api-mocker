@@ -10,20 +10,18 @@ from . import mocks
 @pytest.mark.parametrize(
     "setup_api_mocks",
     [
-        (
-            [
-                MockAPIResponse(
-                    url="https://example.com/api/commit",
-                    method="POST",
-                    json={"message": "Commit successful", "commit_id": "abc123"},
-                ),
-                MockAPIResponse(
-                    url="https://example.com/api/push",
-                    method="POST",
-                    json={"message": "Push successful", "push_id": "xyz456"},
-                ),
-            ]
-        )
+        [
+            MockAPIResponse(
+                url="https://example.com/api/commit",
+                method="POST",
+                json={"message": "Commit successful", "commit_id": "abc123"},
+            ),
+            MockAPIResponse(
+                url="https://example.com/api/push",
+                method="POST",
+                json={"message": "Push successful", "push_id": "xyz456"},
+            ),
+        ]
     ],
     indirect=True,
 )
@@ -43,20 +41,18 @@ def test_commit_and_push(setup_api_mocks):
 @pytest.mark.parametrize(
     "setup_http_mocks",
     [
-        (
-            [
-                MockAPIResponse(
-                    url="https://example.com/api/commit",
-                    method="POST",
-                    json={"message": "Commit successful", "commit_id": "abc123"},
-                ),
-                MockAPIResponse(
-                    url="https://example.com/api/push",
-                    method="POST",
-                    json={"message": "Push successful", "push_id": "xyz456"},
-                ),
-            ]
-        )
+        [
+            MockAPIResponse(
+                url="https://example.com/api/commit",
+                method="POST",
+                json={"message": "Commit successful", "commit_id": "abc123"},
+            ),
+            MockAPIResponse(
+                url="https://example.com/api/push",
+                method="POST",
+                json={"message": "Push successful", "push_id": "xyz456"},
+            ),
+        ]
     ],
     indirect=True,
 )
@@ -76,13 +72,11 @@ def test_commit_and_push_with_updated_http_mock(setup_http_mocks):
 @pytest.mark.parametrize(
     "setup_api_mocks",
     [
-        (
-            [
-                mocks.Fork(),
-                mocks.Commit(),
-                mocks.Push(),
-            ]
-        )
+        [
+            mocks.Fork(),
+            mocks.Commit(),
+            mocks.Push(),
+        ]
     ],
     indirect=True,
 )

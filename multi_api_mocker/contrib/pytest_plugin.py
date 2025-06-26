@@ -23,8 +23,9 @@ except ImportError:
     httpx_available = False
 
 try:
-    from aioresponses import aioresponses # type: ignore # noqa: F401
-    from ..aiohttp_utils import AIOHTTPMockSet # noqa: F401
+    from aioresponses import aioresponses  # type: ignore # noqa: F401
+    from ..aiohttp_utils import AIOHTTPMockSet  # noqa: F401
+
     aiohttp_available = True
 except ImportError:
     aiohttp_available = False
@@ -124,9 +125,9 @@ if httpx_available:
         Usage in tests is similar to the original setup_api_mocks, using pytest's
         parametrize decorator to supply mock response definitions.
         """
-        mock_definitions: List[
-            Union[MockAPIResponse, List[MockAPIResponse]]
-        ] = request.param
+        mock_definitions: List[Union[MockAPIResponse, List[MockAPIResponse]]] = (
+            request.param
+        )
 
         for mock_definition in mock_definitions:
             if isinstance(mock_definition, list):
@@ -156,6 +157,7 @@ if httpx_available:
                 status_code=mock_definition.status_code,
             )
 
+
 if aiohttp_available:
 
     @pytest.fixture
@@ -165,9 +167,9 @@ if aiohttp_available:
 
     @pytest.fixture
     def setup_aiohttp_mocks(aiohttp_mock_session, request) -> AIOHTTPMockSet:
-        mock_definitions: List[
-            Union[MockAPIResponse, List[MockAPIResponse]]
-        ] = request.param
+        mock_definitions: List[Union[MockAPIResponse, List[MockAPIResponse]]] = (
+            request.param
+        )
 
         for mock_definition in mock_definitions:
             if isinstance(mock_definition, list):
@@ -178,7 +180,9 @@ if aiohttp_available:
 
         yield AIOHTTPMockSet(mock_definitions, aiohttp_mock_session)
 
-    def add_aiohttp_response(aiohttp_mock: aioresponses, mock_definition: MockAPIResponse):
+    def add_aiohttp_response(
+        aiohttp_mock: aioresponses, mock_definition: MockAPIResponse
+    ):
         if not isinstance(mock_definition, MockAPIResponse):
             raise ValueError(
                 f"Unsupported mock definition type: {type(mock_definition)}"
