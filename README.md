@@ -99,6 +99,38 @@ def test_commit_and_push(setup_http_mocks):
 
 This setup allows you to define the mock responses directly in the test parameters, offering a straightforward and flexible way to mock multiple API calls within a single test case.
 
+### Quick Start: `aiohttp` Usage
+
+This guide demonstrates how to quickly set up API mocks for `aiohttp` using `MockAPIResponse` with direct JSON responses in a pytest-parametrized test.
+
+```python
+import pytest
+from aiohttp import ClientSession
+from multi_api_mocker.definitions import MockAPIResponse
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "setup_aiohttp_mocks",
+    [
+        [
+            MockAPIResponse(
+                url="https://example.com/api/test",
+                method="GET",
+                json={"message": "Success"},
+                status_code=200,
+            )
+        ]
+    ],
+    indirect=True,
+)
+async def test_aiohttp_mocking(setup_aiohttp_mocks):
+    async with ClientSession() as session:
+        async with session.get("https://example.com/api/test") as response:
+            assert response.status == 200
+            assert await response.json() == {"message": "Success"}
+```
+
 ## API Reference
 
 ### MockAPIResponse Class

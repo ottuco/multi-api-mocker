@@ -22,6 +22,14 @@ try:
 except ImportError:
     httpx_available = False
 
+try:
+    from aioresponses import aioresponses # type: ignore # noqa: F401
+    from ..aiohttp_utils import AIOHTTPMockSet # noqa: F401
+    aiohttp_available = True
+except ImportError:
+    aiohttp_available = False
+
+
 if requests_mock_available:
 
     @pytest.fixture(scope="function")
@@ -146,4 +154,45 @@ if httpx_available:
                 method=mock_definition.method,
                 json=mock_definition.json,
                 status_code=mock_definition.status_code,
+            )
+
+if aiohttp_available:
+
+    @pytest.fixture
+    def aiohttp_mock_session():
+        with aioresponses() as m:
+            yield m
+
+    @pytest.fixture
+    def setup_aiohttp_mocks(aiohttp_mock_session, request) -> AIOHTTPMockSet:
+        mock_definitions: List[
+            Union[MockAPIResponse, List[MockAPIResponse]]
+        ] = request.param
+
+        for mock_definition in mock_definitions:
+            if isinstance(mock_definition, list):
+                for nested_mock_definition in mock_definition:
+                    add_aiohttp_response(aiohttp_mock_session, nested_mock_definition)
+            else:
+                add_aiohttp_response(aiohttp_mock_session, mock_definition)
+
+        yield AIOHTTPMockSet(mock_definitions, aiohttp_mock_session)
+
+    def add_aiohttp_response(aiohttp_mock: aioresponses, mock_definition: MockAPIResponse):
+        if not isinstance(mock_definition, MockAPIResponse):
+            raise ValueError(
+                f"Unsupported mock definition type: {type(mock_definition)}"
+            )
+        if mock_definition.exc:
+            aiohttp_mock.exception(
+                url=mock_definition.url,
+                method=mock_definition.method.upper(),
+                exception=mock_definition.exc,
+            )
+        else:
+            aiohttp_mock.add(
+                url=mock_definition.url,
+                method=mock_definition.method.upper(),
+                payload=mock_definition.json,
+                status=mock_definition.status_code,
             )
