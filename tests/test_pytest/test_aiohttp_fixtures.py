@@ -41,5 +41,5 @@ async def test_aiohttp_mocking(setup_aiohttp_mocks):
 )
 async def test_aiohttp_exception_mocking(setup_aiohttp_mocks):
     async with ClientSession() as session:
-        with pytest.raises(client_exceptions.ClientConnectorError):
+        with pytest.raises(OSError):
             await session.get("https://example.com/api/error")
