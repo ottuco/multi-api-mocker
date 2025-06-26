@@ -188,7 +188,7 @@ if aiohttp_available:
                 f"Unsupported mock definition type: {type(mock_definition)}"
             )
         if mock_definition.exc:
-            aiohttp_mock.exception(
+            aiohttp_mock.add(
                 url=mock_definition.url,
                 method=mock_definition.method.upper(),
                 exception=mock_definition.exc,

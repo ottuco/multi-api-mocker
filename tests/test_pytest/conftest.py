@@ -13,6 +13,3 @@ try:
     from multi_api_mocker.contrib.pytest_plugin import aiohttp_available
 except ImportError:
     aiohttp_available = False
-
-if aiohttp_available:
-    pytest_plugins = "aioresponses"
