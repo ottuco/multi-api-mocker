@@ -39,9 +39,9 @@ Multi-API Mocker offers flexible installation options depending on your project'
   pip install multi-api-mocker[all]
   ```
 
-## Core Concept: Defining Mock Responses
+## Core Concept: Defining Mock Responses (`MockAPIResponse`)
 
-The foundation of this library is the `MockAPIResponse` class, which serves as a blueprint for creating mock responses for your API endpoints. You can use it directly or subclass it to create reusable mock definitions.
+The foundation of this library is the `MockAPIResponse` class, which serves as a universal blueprint for creating mock responses for your API endpoints, regardless of the underlying HTTP client library. You can use it directly or subclass it to create reusable mock definitions.
 
 ### Using `MockAPIResponse` Directly
 
@@ -51,7 +51,7 @@ For simple cases, you can instantiate `MockAPIResponse` directly within your tes
 from multi_api_mocker.definitions import MockAPIResponse
 
 @pytest.mark.parametrize(
-    "setup_http_mocks",
+    "setup_http_mocks", # Or setup_httpx_mocks, setup_aiohttp_mocks
     [
         ([
             MockAPIResponse(
@@ -89,6 +89,7 @@ class UserProfile(MockAPIResponse):
 
 # in your test file
 import mocks
+import requests # or httpx, aiohttp
 
 def test_user_profile(setup_http_mocks):
     # The mock is already set up by the fixture
@@ -97,7 +98,7 @@ def test_user_profile(setup_http_mocks):
 
 # To override defaults for a specific test:
 @pytest.mark.parametrize(
-    "setup_http_mocks",
+    "setup_http_mocks", # Or setup_httpx_mocks, setup_aiohttp_mocks
     [([
         # Simulate a not found error
         mocks.UserProfile(status_code=404, json={"error": "User not found"})
@@ -109,16 +110,16 @@ def test_user_not_found(setup_http_mocks):
     assert response.status_code == 404
 ```
 
-## Supported Libraries and Usage
+## Supported Libraries and Their MockSet Objects
 
-Multi-API Mocker provides dedicated pytest fixtures for each supported HTTP client library. While the setup is similar, the returned "mock set" object differs slightly for each.
+Multi-API Mocker provides dedicated pytest fixtures for each supported HTTP client library. While the setup using `MockAPIResponse` is consistent, the returned "mock set" object and its capabilities differ based on how the underlying mocking library operates.
 
-### For `requests`
+### For `requests` (`requests-mock`)
 
 - **Fixture:** `setup_http_mocks`
 - **Returned Object:** `RequestsMockSet`
 
-This fixture integrates with the `requests-mock` library.
+This fixture integrates with the `requests-mock` library. `requests-mock` intercepts requests and provides mock responses based on registered URIs. The `RequestsMockSet` allows you to access the underlying `requests-mock` `_Matcher` objects, which can be used to inspect details of calls *after* they have been made (e.g., `call_count`).
 
 **Example:**
 ```python
@@ -140,12 +141,12 @@ def test_requests_example(setup_http_mocks):
     assert matcher.call_count == 1
 ```
 
-### For `httpx`
+### For `httpx` (`pytest-httpx`)
 
 - **Fixture:** `setup_httpx_mocks`
 - **Returned Object:** `HTTPXMockSet`
 
-This fixture integrates with `pytest-httpx`. A key difference from `requests-mock` is that `httpx` requests are created just-in-time when they are executed. The `HTTPXMockSet` helps you inspect these requests *after* they have been made.
+This fixture integrates with `pytest-httpx`. A key difference from `requests-mock` is that `httpx` requests are created just-in-time when they are executed. The `HTTPXMockSet` is designed to help you inspect these requests *after* they have been made, as the request objects are not available until the actual HTTP call occurs.
 
 **Example:**
 ```python
@@ -169,12 +170,12 @@ def test_httpx_example(setup_httpx_mocks):
     assert request.method == "GET"
 ```
 
-### For `aiohttp`
+### For `aiohttp` (`aioresponses`)
 
 - **Fixture:** `setup_aiohttp_mocks`
 - **Returned Object:** `AIOHTTPMockSet`
 
-This fixture integrates with `aioresponses`. Similar to `httpx`, `aiohttp` requests are asynchronous and handled just-in-time.
+This fixture integrates with `aioresponses`. Similar to `httpx`, `aiohttp` requests are asynchronous and handled just-in-time. The `AIOHTTPMockSet` provides a similar interface to `HTTPXMockSet` for inspecting requests *after* they have been executed.
 
 **Example:**
 ```python
@@ -200,14 +201,14 @@ async def test_aiohttp_example(setup_aiohttp_mocks):
 
 ### Simulating Exceptions
 
-You can simulate network errors or other exceptions by passing an `exc` argument.
+You can simulate network errors or other exceptions by passing an `exc` argument to your `MockAPIResponse`.
 
 ```python
 import requests
 from requests.exceptions import ConnectTimeout
 
 @pytest.mark.parametrize(
-    "setup_http_mocks",
+    "setup_http_mocks", # Or setup_httpx_mocks, setup_aiohttp_mocks
     [([
         mocks.UserProfile(exc=ConnectTimeout("Connection timed out"))
     ])],
@@ -220,11 +221,11 @@ def test_with_exception(setup_http_mocks):
 
 ### Partial JSON Updates
 
-For minor variations in a response, use `partial_json` to update only specific fields of the `default_json`.
+For minor variations in a response, use `partial_json` to update only specific fields of the `default_json` defined in your `MockAPIResponse` (or its subclass).
 
 ```python
 @pytest.mark.parametrize(
-    "setup_http_mocks",
+    "setup_http_mocks", # Or setup_httpx_mocks, setup_aiohttp_mocks
     [([
         mocks.UserProfile(partial_json={"name": "John Smith"})
     ])],
