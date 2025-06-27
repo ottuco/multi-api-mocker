@@ -8,37 +8,6 @@ from . import mocks
 
 
 @pytest.mark.parametrize(
-    "setup_api_mocks",
-    [
-        [
-            MockAPIResponse(
-                url="https://example.com/api/commit",
-                method="POST",
-                json={"message": "Commit successful", "commit_id": "abc123"},
-            ),
-            MockAPIResponse(
-                url="https://example.com/api/push",
-                method="POST",
-                json={"message": "Push successful", "push_id": "xyz456"},
-            ),
-        ]
-    ],
-    indirect=True,
-)
-def test_commit_and_push(setup_api_mocks):
-    # Perform the commit API call
-    commit_response = requests.post("https://example.com/api/commit")
-    assert commit_response.json() == {
-        "message": "Commit successful",
-        "commit_id": "abc123",
-    }
-
-    # Perform the push API call
-    push_response = requests.post("https://example.com/api/push")
-    assert push_response.json() == {"message": "Push successful", "push_id": "xyz456"}
-
-
-@pytest.mark.parametrize(
     "setup_http_mocks",
     [
         [
@@ -56,7 +25,7 @@ def test_commit_and_push(setup_api_mocks):
     ],
     indirect=True,
 )
-def test_commit_and_push_with_updated_http_mock(setup_http_mocks):
+def test_commit_and_push(setup_http_mocks):
     # Perform the commit API call
     commit_response = requests.post("https://example.com/api/commit")
     assert commit_response.json() == {
@@ -70,7 +39,7 @@ def test_commit_and_push_with_updated_http_mock(setup_http_mocks):
 
 
 @pytest.mark.parametrize(
-    "setup_api_mocks",
+    "setup_http_mocks",
     [
         [
             mocks.Fork(),
@@ -80,8 +49,8 @@ def test_commit_and_push_with_updated_http_mock(setup_http_mocks):
     ],
     indirect=True,
 )
-def test_single_flow_multiple_api_calls(setup_api_mocks):
-    mock_set = setup_api_mocks
+def test_single_flow_multiple_api_calls(setup_http_mocks):
+    mock_set = setup_http_mocks
     # Perform the API call
     response = requests.post("https://example.com/api/fork")
 
@@ -96,7 +65,7 @@ def test_single_flow_multiple_api_calls(setup_api_mocks):
 
 
 @pytest.mark.parametrize(
-    "setup_api_mocks",
+    "setup_http_mocks",
     [
         # Scenario 1: Push fails with a 400 error
         (
@@ -118,8 +87,8 @@ def test_single_flow_multiple_api_calls(setup_api_mocks):
     ],
     indirect=True,
 )
-def test_multiple_scenarios(setup_api_mocks):
-    mock_set = setup_api_mocks
+def test_multiple_scenarios(setup_http_mocks):
+    mock_set = setup_http_mocks
     # Perform the API call
     response = requests.post("https://example.com/api/fork")
 
@@ -139,7 +108,7 @@ def test_multiple_scenarios(setup_api_mocks):
 
 
 @pytest.mark.parametrize(
-    "setup_api_mocks",
+    "setup_http_mocks",
     [
         # Scenario 1: Push fails with a 400 error
         (
@@ -160,8 +129,8 @@ def test_multiple_scenarios(setup_api_mocks):
     ],
     indirect=True,
 )
-def test_exception(setup_api_mocks):
-    mock_set = setup_api_mocks
+def test_exception(setup_http_mocks):
+    mock_set = setup_http_mocks
     # Perform the API call
     response = requests.post("https://example.com/api/fork")
 
@@ -176,14 +145,14 @@ def test_exception(setup_api_mocks):
 
 
 @pytest.mark.parametrize(
-    "setup_api_mocks",
+    "setup_http_mocks",
     [
         ([mocks.Fork(), mocks.Commit(), mocks.Push(partial_json={"id": "partial_id"})]),
     ],
     indirect=True,
 )
-def test_partial_json(setup_api_mocks):
-    mock_set = setup_api_mocks
+def test_partial_json(setup_http_mocks):
+    mock_set = setup_http_mocks
 
     response = requests.post("https://example.com/api/push")
     expected_json = mock_set["Push"].json
@@ -194,7 +163,7 @@ def test_partial_json(setup_api_mocks):
 
 
 @pytest.mark.parametrize(
-    "user_email, setup_api_mocks",
+    "user_email, setup_http_mocks",
     [
         ("dev1@example.com", [mocks.Fork(), mocks.Commit(), mocks.Push()]),
         (
@@ -206,10 +175,10 @@ def test_partial_json(setup_api_mocks):
             ],
         ),
     ],
-    indirect=["setup_api_mocks"],
+    indirect=["setup_http_mocks"],
 )
-def test_flexible_parametrization(user_email, setup_api_mocks):
-    mock_set = setup_api_mocks
+def test_flexible_parametrization(user_email, setup_http_mocks):
+    mock_set = setup_http_mocks
 
     response = requests.post("https://example.com/api/push", json={"email": user_email})
     expected_json = mock_set["Push"].json
@@ -219,7 +188,7 @@ def test_flexible_parametrization(user_email, setup_api_mocks):
 
 
 @pytest.mark.parametrize(
-    "setup_api_mocks",
+    "setup_http_mocks",
     [
         (
             [
@@ -230,8 +199,8 @@ def test_flexible_parametrization(user_email, setup_api_mocks):
     ],
     indirect=True,
 )
-def test_same_endpoint_url(setup_api_mocks):
-    mock_set = setup_api_mocks
+def test_same_endpoint_url(setup_http_mocks):
+    mock_set = setup_http_mocks
 
     response = requests.post("https://example.com/api/push")
     assert response.json() == mock_set["Push"].json
