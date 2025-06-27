@@ -160,7 +160,7 @@ if httpx_available:
 
 if aiohttp_available:
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def aiohttp_mock_session():
         with aioresponses() as m:
             yield m
