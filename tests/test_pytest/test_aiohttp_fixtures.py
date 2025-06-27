@@ -1,5 +1,5 @@
 import pytest
-from aiohttp import ClientSession, client_exceptions
+from aiohttp import ClientSession
 from multi_api_mocker.definitions import MockAPIResponse
 
 
