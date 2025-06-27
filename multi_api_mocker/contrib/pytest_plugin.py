@@ -160,25 +160,21 @@ if httpx_available:
 
 if aiohttp_available:
 
-    @pytest.fixture(scope="function")
-    def aiohttp_mock_session():
-        with aioresponses() as m:
-            yield m
-
     @pytest.fixture
-    def setup_aiohttp_mocks(aiohttp_mock_session, request) -> AIOHTTPMockSet:
-        mock_definitions: List[Union[MockAPIResponse, List[MockAPIResponse]]] = (
-            request.param
-        )
+    def setup_aiohttp_mocks(request) -> AIOHTTPMockSet:
+        with aioresponses() as m:
+            mock_definitions: List[Union[MockAPIResponse, List[MockAPIResponse]]] = (
+                request.param
+            )
 
-        for mock_definition in mock_definitions:
-            if isinstance(mock_definition, list):
-                for nested_mock_definition in mock_definition:
-                    add_aiohttp_response(aiohttp_mock_session, nested_mock_definition)
-            else:
-                add_aiohttp_response(aiohttp_mock_session, mock_definition)
+            for mock_definition in mock_definitions:
+                if isinstance(mock_definition, list):
+                    for nested_mock_definition in mock_definition:
+                        add_aiohttp_response(m, nested_mock_definition)
+                else:
+                    add_aiohttp_response(m, mock_definition)
 
-        yield AIOHTTPMockSet(mock_definitions, aiohttp_mock_session)
+            yield AIOHTTPMockSet(mock_definitions, m)
 
     def add_aiohttp_response(
         aiohttp_mock: aioresponses, mock_definition: MockAPIResponse
