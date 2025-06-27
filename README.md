@@ -119,7 +119,7 @@ Multi-API Mocker provides dedicated pytest fixtures for each supported HTTP clie
 - **Fixture:** `setup_http_mocks`
 - **Returned Object:** `RequestsMockSet`
 
-This fixture integrates with the `requests-mock` library. `requests-mock` intercepts requests and provides mock responses based on registered URIs. The `RequestsMockSet` allows you to access the underlying `requests-mock` `_Matcher` objects, which can be used to inspect details of calls *after* they have been made (e.g., `call_count`).
+This fixture integrates with the `requests-mock` library. `requests-mock` intercepts requests and provides mock responses based on registered URIs. The `RequestsMockSet` allows you to access the underlying `requests-mock` `_Matcher` objects via the `get_matcher()` method, which can be used to inspect details of calls *after* they have been made (e.g., `call_count`).
 
 **Example:**
 ```python
@@ -146,7 +146,7 @@ def test_requests_example(setup_http_mocks):
 - **Fixture:** `setup_httpx_mocks`
 - **Returned Object:** `HTTPXMockSet`
 
-This fixture integrates with `pytest-httpx`. A key difference from `requests-mock` is that `httpx` requests are created just-in-time when they are executed. The `HTTPXMockSet` is designed to help you inspect these requests *after* they have been made, as the request objects are not available until the actual HTTP call occurs.
+This fixture integrates with `pytest-httpx`. A key difference from `requests-mock` is that `httpx` requests are created just-in-time when they are executed. The `HTTPXMockSet` is designed to help you inspect these requests *after* they have been made via the `get_request()` method, as the request objects are not available until the actual HTTP call occurs.
 
 **Example:**
 ```python
@@ -175,7 +175,7 @@ def test_httpx_example(setup_httpx_mocks):
 - **Fixture:** `setup_aiohttp_mocks`
 - **Returned Object:** `AIOHTTPMockSet`
 
-This fixture integrates with `aioresponses`. Similar to `httpx`, `aiohttp` requests are asynchronous and handled just-in-time. The `AIOHTTPMockSet` provides a similar interface to `HTTPXMockSet` for inspecting requests *after* they have been executed.
+This fixture integrates with `aioresponses`. Similar to `httpx`, `aiohttp` requests are asynchronous and handled just-in-time. The `AIOHTTPMockSet` provides a `get_request()` method for inspecting requests *after* they have been executed.
 
 **Example:**
 ```python
@@ -237,6 +237,137 @@ def test_with_partial_json(setup_http_mocks):
     assert response.json()["name"] == "John Smith"
     assert response.json()["id"] == "user123" 
 ```
+
+### Advanced Mocking with `MockAPIResponse`
+
+For advanced mocking scenarios, you can use the `MockAPIResponse` class. This class provides additional parameters that map directly to the capabilities of the underlying mocking libraries, giving you more control over the mocked response.
+
+- **`headers`**: A dictionary of response headers.
+- **`callback`**: A function that will be called to generate a dynamic response.
+
+#### `aiohttp`
+
+The callback function will receive the URL of the request and any other keyword arguments, and it should return an `aioresponses.CallbackResult` object.
+
+**Example:**
+```python
+import pytest
+from aiohttp import ClientSession
+from multi_api_mocker.definitions import MockAPIResponse
+from aioresponses import CallbackResult
+
+# Example of a callback function
+def dynamic_callback(url, **kwargs):
+    # You can add custom logic here to determine the response
+    if "error" in kwargs["params"]:
+        return CallbackResult(status=500, body="Internal Server Error")
+    return CallbackResult(status=200, body="Success")
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "setup_aiohttp_mocks",
+    [
+        [
+            # Mocking with custom headers
+            MockAPIResponse(
+                url="https://example.com/api/test_headers",
+                method="GET",
+                json={"message": "Success"},
+                status_code=200,
+                headers={"X-Custom-Header": "Test-Value"},
+            ),
+            # Mocking with a dynamic callback
+            MockAPIResponse(
+                url="https://example.com/api/test_callback",
+                method="GET",
+                callback=dynamic_callback,
+            ),
+        ]
+    ],
+    indirect=True,
+)
+async def test_advanced_aiohttp_mocking(setup_aiohttp_mocks):
+    async with ClientSession() as session:
+        # Test custom headers
+        async with session.get("https://example.com/api/test_headers") as response:
+            assert response.status == 200
+            assert await response.json() == {"message": "Success"}
+            assert response.headers["X-Custom-Header"] == "Test-Value"
+
+        # Test dynamic callback
+        async with session.get("https://example.com/api/test_callback") as response:
+            assert response.status == 200
+            assert await response.text() == "Success"
+```
+
+#### `requests`
+
+The callback function will receive the request object and the context, and it should return a JSON serializable object.
+
+**Example:**
+```python
+import pytest
+import requests
+from multi_api_mocker.definitions import MockAPIResponse
+
+# Example of a callback function
+def dynamic_callback(request, context):
+    context.status_code = 200
+    return {"message": "Callback executed"}
+
+@pytest.mark.parametrize(
+    "setup_http_mocks",
+    [
+        [
+            MockAPIResponse(
+                url="https://example.com/api/test_callback",
+                method="GET",
+                callback=dynamic_callback,
+            )
+        ]
+    ],
+    indirect=True,
+)
+def test_advanced_http_mocking(setup_http_mocks):
+    response = requests.get("https://example.com/api/test_callback")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Callback executed"}
+```
+
+#### `httpx`
+
+The callback function will receive the request object and it should return an `httpx.Response` object.
+
+**Example:**
+```python
+import pytest
+import httpx
+from multi_api_mocker.definitions import MockAPIResponse
+
+# Example of a callback function
+def dynamic_callback(request):
+    return httpx.Response(200, json={"message": "Callback executed"})
+
+@pytest.mark.parametrize(
+    "setup_httpx_mocks",
+    [
+        [
+            MockAPIResponse(
+                url="https://example.com/api/test_callback",
+                method="GET",
+                callback=dynamic_callback,
+            )
+        ]
+    ],
+    indirect=True,
+)
+def test_advanced_httpx_mocking(setup_httpx_mocks):
+    with httpx.Client() as client:
+        response = client.get("https://example.com/api/test_callback")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Callback executed"}
+```
+
 
 ## Deprecation Warnings
 

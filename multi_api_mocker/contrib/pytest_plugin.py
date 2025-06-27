@@ -35,55 +35,15 @@ if requests_mock_available:
 
     @pytest.fixture(scope="function")
     def setup_http_mocks(requests_mock: Mocker, request) -> RequestsMockSet:
-        """
-        A pytest fixture for configuring mock HTTP responses in a test environment.
-        It takes subclasses of MockAPIResponse, each representing a unique API call
-        configuration. These subclasses facilitate the creation of simple or complex
-        response flows, simulating real-world API interactions.
-
-        Parameters:
-            requests_mock (Mocker): The pytest requests_mock fixture.
-            request: The pytest request object containing parametrized test data.
-
-        Returns:
-            RequestsMockSet: An instance of MockSet containing the organized
-                    MockAPIResponse objects, ready for use in tests.
-
-        The fixture supports multiple test scenarios, allowing for thorough
-        testing of varying API response conditions. This is especially useful
-        for simulating sequences of API calls like Fork, Commit, and Push
-        in a version control system context.
-
-        Example Usage:
-            - Single API Call Test:
-              @pytest.mark.parametrize("setup_http_mocks", [([Fork()])], indirect=True)
-
-            - Multi-call Sequence Test:
-              @pytest.mark.parametrize(
-                  "setup_http_mocks", [([Fork(), Commit(), Push()])], indirect=True
-              )
-
-            - Testing Multiple Scenarios:
-            @pytest.mark.parametrize(
-                "setup_http_mocks",
-                [([Fork(), Commit(), Push()]), ([Fork(), Commit(), ForcePush()])],
-                indirect=True
-            )
-
-
-        This fixture converts the list of MockAPIResponse subclasses into
-        MockConfiguration instances, registers them with requests_mock,
-        and returns a MockSet object, which allows querying each mock
-        by its endpoint name.
-        """
+        if not requests_mock_available:
+            pytest.skip("requests-mock is not installed")
         yield from configure_http_mocks(requests_mock, request)
 
     # Deprecated wrapper fixture
     @pytest.fixture(scope="function")
     def setup_api_mocks(requests_mock: Mocker, request) -> RequestsMockSet:
-        """
-        Deprecated: Use `setup_http_mocks` instead.
-        """
+        if not requests_mock_available:
+            pytest.skip("requests-mock is not installed")
         warnings.warn(
             "`setup_api_mocks` is deprecated and will be removed in a future release. "
             "Please use `setup_http_mocks` instead.",
@@ -97,8 +57,20 @@ if requests_mock_available:
         matchers = {}
 
         for api_mock in api_mocks_configurations:
+            responses = []
+            for response in api_mock.responses:
+                response_data = {
+                    key: response.get(key)
+                    for key in ("json", "status_code", "headers", "exc")
+                    if response.get(key) is not None
+                }
+                if response.get("callback") is not None:
+                    response_data["json"] = response.get("callback")
+                responses.append(response_data)
             matcher = requests_mock.register_uri(
-                api_mock.method, api_mock.url, api_mock.responses
+                api_mock.method,
+                api_mock.url,
+                response_list=responses,
             )
             matchers[api_mock.url] = matcher
 
@@ -109,34 +81,22 @@ if httpx_available:
 
     @pytest.fixture(scope="function")
     def setup_httpx_mocks(httpx_mock: HTTPXMock, request) -> HTTPXMockSet:
-        """
-        A pytest fixture for configuring mock HTTPX responses in a test environment.
-        Directly registers each mock response for HTTPX, leveraging pytest-httpx's
-        ability to queue multiple responses for the same URL and method.
-
-        Parameters:
-            httpx_mock (HTTPXMock): The pytest-httpx fixture for mocking HTTPX requests.
-            request: The pytest request object containing parameterized test data.
-
-        Returns:
-            HTTPXMockSet: An instance of HttpxMockSet containing the organized
-                          MockAPIResponse objects, ready for use in tests.
-
-        Usage in tests is similar to the original setup_api_mocks, using pytest's
-        parametrize decorator to supply mock response definitions.
-        """
+        if not httpx_available:
+            pytest.skip("pytest-httpx is not installed")
         mock_definitions: List[Union[MockAPIResponse, List[MockAPIResponse]]] = (
             request.param
         )
-
+        flattened_definitions = []
         for mock_definition in mock_definitions:
             if isinstance(mock_definition, list):
-                for nested_mock_definition in mock_definition:
-                    add_response(httpx_mock, nested_mock_definition)
+                flattened_definitions.extend(mock_definition)
             else:
-                add_response(httpx_mock, mock_definition)
+                flattened_definitions.append(mock_definition)
 
-        yield HTTPXMockSet(mock_definitions, httpx_mock)
+        for mock_definition in flattened_definitions:
+            add_response(httpx_mock, mock_definition)
+
+        yield HTTPXMockSet(flattened_definitions, httpx_mock)
 
     def add_response(httpx_mock: HTTPXMock, mock_definition: MockAPIResponse):
         if not isinstance(mock_definition, MockAPIResponse):
@@ -149,12 +109,20 @@ if httpx_available:
                 method=mock_definition.method,
                 exception=mock_definition.exc,
             )
+        elif mock_definition.callback:
+            httpx_mock.add_callback(
+                url=mock_definition.url,
+                method=mock_definition.method,
+                callback=mock_definition.callback,
+            )
         else:
             httpx_mock.add_response(
                 url=mock_definition.url,
                 method=mock_definition.method,
                 json=mock_definition.json,
+                text=mock_definition.text,
                 status_code=mock_definition.status_code,
+                headers=mock_definition.headers,
             )
 
 
@@ -162,19 +130,23 @@ if aiohttp_available:
 
     @pytest.fixture
     def setup_aiohttp_mocks(request) -> AIOHTTPMockSet:
+        if not aiohttp_available:
+            pytest.skip("aioresponses is not installed")
         with aioresponses() as m:
             mock_definitions: List[Union[MockAPIResponse, List[MockAPIResponse]]] = (
                 request.param
             )
-
+            flattened_definitions = []
             for mock_definition in mock_definitions:
                 if isinstance(mock_definition, list):
-                    for nested_mock_definition in mock_definition:
-                        add_aiohttp_response(m, nested_mock_definition)
+                    flattened_definitions.extend(mock_definition)
                 else:
-                    add_aiohttp_response(m, mock_definition)
+                    flattened_definitions.append(mock_definition)
 
-            yield AIOHTTPMockSet(mock_definitions, m)
+            for mock_definition in flattened_definitions:
+                add_aiohttp_response(m, mock_definition)
+
+            yield AIOHTTPMockSet(flattened_definitions, m)
 
     def add_aiohttp_response(
         aiohttp_mock: aioresponses, mock_definition: MockAPIResponse
@@ -195,4 +167,6 @@ if aiohttp_available:
                 method=mock_definition.method.upper(),
                 payload=mock_definition.json,
                 status=mock_definition.status_code,
+                headers=mock_definition.headers,
+                callback=mock_definition.callback,
             )

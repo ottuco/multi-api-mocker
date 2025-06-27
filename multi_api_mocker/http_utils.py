@@ -127,5 +127,6 @@ def add_mock_to_group(grouped_mocks, mock):
         status_code=mock.status_code if not mock.exc else None,
         json=mock.json if not mock.exc else None,
         exc=mock.exc if mock.exc else None,
+        headers=mock.headers if not mock.exc else None,
     )
     grouped_mocks[(mock.url, mock.method)].append(response_kwargs)
