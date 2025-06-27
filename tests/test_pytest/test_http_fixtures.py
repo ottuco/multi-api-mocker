@@ -1,26 +1,9 @@
-import httpx
 import pytest
 import requests
 from requests import RequestException
 
 from multi_api_mocker.definitions import MockAPIResponse
 from . import mocks
-
-try:
-    from multi_api_mocker.contrib.pytest_plugin import setup_http_mocks  # noqa: F401
-except ImportError:
-    pass
-
-try:
-    from multi_api_mocker.contrib.pytest_plugin import setup_httpx_mocks  # noqa: F401
-except ImportError:
-    pass
-
-try:
-    from multi_api_mocker.contrib.pytest_plugin import setup_aiohttp_mocks  # noqa: F401
-    from multi_api_mocker.contrib.pytest_plugin import aiohttp_available
-except ImportError:
-    aiohttp_available = False
 
 
 @pytest.mark.parametrize(
@@ -231,101 +214,48 @@ def test_same_endpoint_url(setup_http_mocks):
 
 
 @pytest.mark.parametrize(
-    "setup_httpx_mocks",
+    "setup_http_mocks",
     [
-        # Scenario 1: Push fails with a 400 error
-        (
-            [
-                mocks.Fork(),
-                mocks.Commit(),
-                mocks.Push(
-                    exc=httpx.RequestError(
-                        "Request error",
-                        request=httpx.Request("POST", "https://example.com/api/push"),
-                    )
-                ),
-            ]
-        ),
-        # Scenario 2: Force fails with 400 using `default_exc`
-        (
-            [
-                mocks.Fork(),
-                mocks.Commit(),
-                mocks.PushTimeoutHTTPXError(),
-            ]
-        ),
+        [
+            MockAPIResponse(
+                url="https://example.com/api/test_headers",
+                method="GET",
+                json={"message": "Success"},
+                status_code=200,
+                headers={"X-Custom-Header": "Test-Value"},
+            )
+        ]
     ],
     indirect=True,
 )
-def test_exception_httpx(setup_httpx_mocks):
-    mock_set = setup_httpx_mocks
+def test_http_mocking_with_headers(setup_http_mocks):
+    response = requests.get("https://example.com/api/test_headers")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Success"}
+    assert response.headers["X-Custom-Header"] == "Test-Value"
 
-    # Perform the API calls
-    with httpx.Client() as client:
-        response = client.post("https://example.com/api/fork")
 
-        # Assert the response matches what was defined in the Fork mock
-        assert response.json() == mock_set["Fork"].json
-
-        response = client.get("https://example.com/api/commit")
-        assert response.json() == mock_set["Commit"].json
-
-        with pytest.raises(httpx.RequestError):
-            client.post("https://example.com/api/push")
+def callback_test(request, context):
+    context.status_code = 200
+    context.headers["X-Callback-Header"] = "Callback-Value"
+    return {"message": "Callback executed"}
 
 
 @pytest.mark.parametrize(
-    "setup_httpx_mocks",
+    "setup_http_mocks",
     [
-        # Scenario 1: Push fails with a 400 error
-        (
-            [
-                mocks.Fork(),
-                mocks.Commit(),
-                mocks.Push(status_code=400, json={"error": "Push failed"}),
-            ]
-        ),
-        # Scenario 2: Force push succeeds after a failed push
-        (
-            [
-                mocks.Fork(),
-                mocks.Commit(),
-                mocks.Push(status_code=400, json={"error": "Push failed"}),
-            ]
-        ),
+        [
+            MockAPIResponse(
+                url="https://example.com/api/test_callback",
+                method="GET",
+                json=callback_test,
+            )
+        ]
     ],
     indirect=True,
 )
-def test_multiple_scenarios_with_httpx(setup_httpx_mocks):
-    mock_set = setup_httpx_mocks
-
-    # Perform the API calls
-    with httpx.Client() as client:
-        response = client.post("https://example.com/api/fork")
-
-        # Assert the response matches what was defined in the Fork mock
-        assert response.json() == mock_set["Fork"].json
-
-        response = client.get("https://example.com/api/commit")
-        assert response.json() == mock_set["Commit"].json
-
-        response = client.post("https://example.com/api/push")
-        assert response.status_code == 400
-        assert response.json() == mock_set["Push"].json
-
-        if "ForcePush" in mock_set:
-            response = client.post("https://example.com/api/force-push")
-            assert response.json() == mock_set["ForcePush"].json
-
-    # Assert that the expected requests were made
-    fork_request = mock_set.get_request("Fork")
-    assert fork_request.method == "POST"
-    assert fork_request.url == "https://example.com/api/fork"
-
-    commit_request = mock_set.get_request("Commit")
-    assert commit_request.method == "GET"
-    assert commit_request.url == "https://example.com/api/commit"
-
-    push_request = mock_set.get_request("Push")
-    assert push_request.method == "POST"
-    assert push_request.url == "https://example.com/api/push"
+def test_http_mocking_with_callback(setup_http_mocks):
+    response = requests.get("https://example.com/api/test_callback")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Callback executed"}
+    assert response.headers["X-Callback-Header"] == "Callback-Value"

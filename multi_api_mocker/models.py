@@ -16,6 +16,7 @@ class ResponseKwargs:
     status_code: Optional[int] = None
     json: Optional[Any] = None
     exc: Optional[Exception] = None
+    headers: Optional[Dict[str, str]] = None
 
     def to_dict(self) -> Dict[str, Any]:
         """

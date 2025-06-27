@@ -1,6 +1,6 @@
 import inspect
 import re
-from typing import Any
+from typing import Any, Callable
 
 
 class MockAPIResponse:
@@ -48,6 +48,8 @@ class MockAPIResponse:
     default_json: Any | None = None
     default_text: str | None = None
     default_exc: Exception | type[Exception] | None = None
+    default_headers: dict | None = None
+    default_callback: Callable | None = None
 
     def __init__(
         self,
@@ -59,6 +61,8 @@ class MockAPIResponse:
         text=None,
         endpoint_name=None,
         exc=None,
+        headers=None,
+        callback=None,
         **kwargs,
     ):
         """
@@ -82,6 +86,10 @@ class MockAPIResponse:
                                            the class name.
             exc (Union[Exception, Type[Exception], None], optional): Exception to raise
                 for the request. Defaults to None.
+            headers (dict, optional): The headers of the response. Defaults to the
+                                      class-level `headers` attribute.
+            callback (Callable, optional): The callback to execute when the request is
+                                           made. This is only supported for aiohttp.
             **kwargs: Additional keyword arguments for customizing the response.
         """
 
@@ -95,6 +103,8 @@ class MockAPIResponse:
         self._json = json
         self._text = text
         self._exc = exc
+        self._headers = headers
+        self._callback = callback
         self.kwargs = kwargs
 
     def __repr__(self):
@@ -115,6 +125,8 @@ class MockAPIResponse:
             "endpoint_name": (str,),
             "default_status_code": (int, type(None)),
             "default_text": (str, type(None)),
+            "default_headers": (dict, type(None)),
+            "default_callback": (Callable, type(None)),
         }
 
         for attr, expected_types in expected_class_attribute_types.items():
@@ -172,6 +184,14 @@ class MockAPIResponse:
     @property
     def exc(self):
         return self._exc or self.__class__.default_exc
+
+    @property
+    def headers(self):
+        return self._headers or self.__class__.default_headers
+
+    @property
+    def callback(self):
+        return self._callback or self.__class__.default_callback
 
     def _default_json(self, status_code):
         return self.default_json.copy() if self.default_json else None
