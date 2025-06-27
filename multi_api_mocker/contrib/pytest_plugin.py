@@ -27,6 +27,7 @@ try:
     from ..aiohttp_utils import AIOHTTPMockSet  # noqa: F401
 
     aiohttp_available = True
+    from ..aiohttp_utils import MockAIOAPIResponse
 except ImportError:
     aiohttp_available = False
 
@@ -183,6 +184,7 @@ if aiohttp_available:
             raise ValueError(
                 f"Unsupported mock definition type: {type(mock_definition)}"
             )
+
         if mock_definition.exc:
             aiohttp_mock.add(
                 url=mock_definition.url,
@@ -190,9 +192,22 @@ if aiohttp_available:
                 exception=mock_definition.exc,
             )
         else:
+            payload = mock_definition.json
+            headers = None
+            body = None
+            callback = None
+
+            if isinstance(mock_definition, MockAIOAPIResponse):
+                headers = mock_definition.headers
+                body = mock_definition.body
+                callback = mock_definition.callback
+
             aiohttp_mock.add(
                 url=mock_definition.url,
                 method=mock_definition.method.upper(),
-                payload=mock_definition.json,
+                payload=payload,
                 status=mock_definition.status_code,
+                headers=headers,
+                body=body,
+                callback=callback,
             )
