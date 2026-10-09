@@ -1,0 +1,25 @@
+# Security Gate (RUL-SD-001; onboarding Redmine #160284).
+# Thin caller for the org-wide reusable workflow; the scanners live in ottuco/.github.
+# Pull requests into the default branch only: the release pull request scans what other
+# branches bring, and each scan costs Actions minutes.
+name: Security Gate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  security:
+    uses: ottuco/.github/.github/workflows/python-security-gate.yml@v1
+    secrets: inherit
+    with:
+      lockfile: requirements_dev.txt
+      redmine-enabled: true
