@@ -1,0 +1,18 @@
+# Pre-release security review (RUL-SD-002; Redmine #160283, onboarding #160284).
+# Thin caller for the org-wide reusable workflow; the rules live in ottuco/.github.
+# Its job is the check `security / Security review`.
+name: Security Review
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted, dismissed]
+permissions:
+  contents: read
+  checks: read
+  pull-requests: read
+  actions: write  # a review re-runs the pull_request run of this check
+jobs:
+  security:
+    uses: ottuco/.github/.github/workflows/security-review.yml@v1
+    secrets: inherit
