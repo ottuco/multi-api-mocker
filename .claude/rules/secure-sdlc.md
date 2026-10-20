@@ -1,4 +1,4 @@
-<!-- Generated from ottuco/governance RUL-SD-003 version 1.0 (commit cd89e61). Do not edit here: change the standard. -->
+<!-- Generated from ottuco/governance RUL-SD-003 version 1.0 (commit e7e4126). Do not edit here: change the standard. -->
 
 # Secure SDLC review rules
 
@@ -30,6 +30,7 @@
 #### Dependencies and change
 - A new dependency arrives through the lockfile, with its reason in the pull request, an allowed license and no known critical or high vulnerability. [6.3.2, 6.3.3, A.8.8]
 - Do not merge with a security-gate finding open. Fix it, or write on the pull request why it is accepted. [6.2.3, A.8.29]
+- Open a pull request as a draft while the work goes on, and mark it ready for review when it is complete and tested: the checks run on ready pull requests. [6.5.1, A.8.32]
 - The pull request names its ticket, its security impact and how to roll it back. [6.5.1, A.8.32]
 - A change marked significant does not merge until a security reviewer has approved its pre-release security review. [6.5.1, A.8.26]
 - Changes to sign-in, permissions, cryptography, payment flows or outside connections are reviewed by someone trained in secure coding. [6.2.3.1, A.8.28]
