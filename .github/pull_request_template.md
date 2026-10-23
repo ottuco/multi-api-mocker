@@ -1,3 +1,5 @@
+<!-- Open as a draft while you are still working, and mark it ready for review when it is complete: the checks run then. -->
+
 **Ticket:** Redmine #
 
 **What this changes:**
@@ -18,4 +20,4 @@
 - [ ] If a ticket is marked significant, the security review answers are in this description
 - [ ] For a release: test accounts, test data and debug settings removed
 
-<!-- Generated from ottuco/governance RUL-SD-003 version 1.0 (commit cd89e61). Do not edit here: change the standard. -->
+<!-- Generated from ottuco/governance RUL-SD-003 version 1.0 (commit e7e4126). Do not edit here: change the standard. -->
