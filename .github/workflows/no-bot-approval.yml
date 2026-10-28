@@ -1,0 +1,11 @@
+# A bot's approval never counts: a person must approve (ottuco/.github#76).
+# Thin caller for the org-wide reusable workflow; it dismisses approvals bots submit.
+name: No Bot Approval
+on:
+  pull_request_review:
+    types: [submitted]
+permissions:
+  pull-requests: write
+jobs:
+  dismiss:
+    uses: ottuco/.github/.github/workflows/no-bot-approval.yml@v1
