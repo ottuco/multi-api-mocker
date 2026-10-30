@@ -20,4 +20,4 @@
 - [ ] If a ticket is marked significant, the security review answers are in this description
 - [ ] For a release: test accounts, test data and debug settings removed
 
-<!-- Generated from ottuco/governance RUL-SD-003 version 1.0 (commit e7e4126). Do not edit here: change the standard. -->
+<!-- Generated from ottuco/governance RUL-SD-003 version 1.0 (commit 021184a). Do not edit here: change the standard. -->
