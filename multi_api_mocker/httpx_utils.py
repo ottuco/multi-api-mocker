@@ -78,3 +78,17 @@ class HTTPXMockSet:
             if request.url == self._response_registry[endpoint_name].url:
                 return request
         raise KeyError(f"No request found for endpoint: {endpoint_name}")
+
+    def get_matcher(self, url: str):
+        """
+        Retrieves the httpx_mock instance. This is a workaround to allow access to
+        the call_count property, as pytest-httpx does not have a concept of
+        "matchers" like requests-mock.
+
+        Parameters:
+            url (str): The URL of the endpoint to retrieve the matcher for.
+
+        Returns:
+            HTTPXMock: The httpx_mock instance.
+        """
+        return self.httpx_mock

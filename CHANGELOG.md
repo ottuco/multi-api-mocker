@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.0] - 2024-06-27
+
+### Added
+- Added `headers` and `callback` parameters to `MockAPIResponse` for advanced mocking scenarios.
+- The `headers` parameter is available for all supported libraries.
+- The `callback` parameter is available for `aiohttp`, `requests` and `httpx`.
+
+### Changed
+- Removed `MockAIOAPIResponse` in favor of using `MockAPIResponse` for all `aiohttp` mocking.
 
 ## [1.3.0] - 2024-02-05
 
