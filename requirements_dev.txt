@@ -8,7 +8,7 @@ pytest==9.0.3
 black==26.10.1
 
 # Dev tooling (pytest 9, black 26, pytest_httpx 0.36) needs Python 3.10+.
-# The package itself still supports Python 3.8+ (setup.py).
+# setup.py still declares Python 3.8+ (CHANGELOG 1.3.0 says 3.8 and 3.9 were dropped).
 pytest_httpx==0.36.2
 
 requests_mock==1.11.0
