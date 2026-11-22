@@ -1,8 +1,13 @@
 # Builds the wheel when a v* tag is pushed and uploads it to PyPI.
 #
 # The build job has no credentials. The publish job runs in the `pypi` GitHub
-# environment and is the only one that can publish (#161538). Only tags that
-# point at a commit on main are published.
+# environment and is the only one that can publish (#161538).
+#
+# The "tag is on main" step below only catches a tag pushed by mistake: a tag
+# run uses the release.yml of the tagged commit, so a commit off main can drop
+# that step. The real guard lives in the repo settings: the PYPI_API_TOKEN secret
+# only as a `pypi` environment secret (no repo-level copy), that environment
+# limited to tags `v*` with a required reviewer, and a tag ruleset on `v*`.
 #
 # Publishing mode is chosen by the repository variable PYPI_TRUSTED_PUBLISHING:
 #   unset or not "true": legacy, uploads with the PYPI_API_TOKEN secret (as before).
@@ -78,11 +83,11 @@ jobs:
 
     - name: Publish package (trusted publishing)
       if: ${{ vars.PYPI_TRUSTED_PUBLISHING == 'true' }}
-      uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+      uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
 
     - name: Publish package (legacy token, remove after the switch)
       if: ${{ vars.PYPI_TRUSTED_PUBLISHING != 'true' }}
-      uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+      uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
