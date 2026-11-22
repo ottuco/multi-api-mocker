@@ -16,6 +16,7 @@ base_requirements = []
 # Define the optional dependencies
 http_requirements = ["requests_mock>=1.9.3"]
 httpx_requirements = ["pytest-httpx>=0.21.0"]
+aiohttp_requirements = ["aioresponses>=0.7.4"]
 
 test_requirements = [
     "pytest>=3",
@@ -40,7 +41,8 @@ setup(
     extras_require={
         "http": http_requirements,
         "httpx": httpx_requirements,
-        "all": http_requirements + httpx_requirements,
+        "aiohttp": aiohttp_requirements,
+        "all": http_requirements + httpx_requirements + aiohttp_requirements,
     },
     license="MIT license",
     long_description=readme + "\n\n" + history,
