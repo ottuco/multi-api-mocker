@@ -72,7 +72,7 @@ class RequestsMockSet:
 
 
 def group_by_url(
-    api_mocks: List[Union[MockAPIResponse, List[MockAPIResponse]]]
+    api_mocks: List[Union[MockAPIResponse, List[MockAPIResponse]]],
 ) -> List[MockConfiguration]:
     """
     Organizes a list of MockAPIResponse objects by their URL and method, grouping
