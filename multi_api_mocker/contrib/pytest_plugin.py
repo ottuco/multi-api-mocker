@@ -5,7 +5,6 @@ import pytest
 
 from ..definitions import MockAPIResponse
 
-
 try:
     from requests_mock import Mocker  # type: ignore # noqa: F401
     from ..http_utils import group_by_url, RequestsMockSet  # noqa: F401
@@ -116,9 +115,9 @@ if httpx_available:
         Usage in tests is similar to the original setup_api_mocks, using pytest's
         parametrize decorator to supply mock response definitions.
         """
-        mock_definitions: List[
-            Union[MockAPIResponse, List[MockAPIResponse]]
-        ] = request.param
+        mock_definitions: List[Union[MockAPIResponse, List[MockAPIResponse]]] = (
+            request.param
+        )
 
         for mock_definition in mock_definitions:
             if isinstance(mock_definition, list):

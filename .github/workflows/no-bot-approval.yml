@@ -8,4 +8,4 @@ permissions:
   pull-requests: write
 jobs:
   dismiss:
-    uses: ottuco/.github/.github/workflows/no-bot-approval.yml@v1
+    uses: ottuco/.github/.github/workflows/no-bot-approval.yml@49c38347d4f498bb1e2e7381599fbe016efceac6 # v1.16.0
